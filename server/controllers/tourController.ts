@@ -1,14 +1,21 @@
 import { NextFunction, Request, Response } from 'express';
 import Tour from '../models/Tour.ts';
+import { match } from 'assert';
 
 const getAllTours = async (req: Request, res: Response) => {
   try {
+    console.log(req.query);
     // BUILD QUERY
+    // 1.Filtering
     const queryObject = { ...req.query };
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
     excludedFields.forEach((el) => delete queryObject[el]);
 
-    let query = Tour.find(queryObject);
+    // 2. Advanced filtering gte, gt, lte, lt => $gte $gt $lte $lt
+    let queryString = JSON.stringify(queryObject);
+    queryString = queryString.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+
+    const query = Tour.find(JSON.parse(queryString));
 
     // EXECUTE QUERY
     const tours = await query;
