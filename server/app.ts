@@ -12,6 +12,7 @@ const __fileName = fileURLToPath(import.meta.url);
 const __dirName = path.dirname(__fileName);
 
 const app = express();
+app.use(morgan('dev'));
 app.use(express.json());
 app.use(cors());
 app.use(express.static(`${__dirName}/public`));

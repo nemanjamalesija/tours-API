@@ -1,10 +1,11 @@
-import { app } from './app.ts';
+import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import http from 'http';
-import dotenv from 'dotenv';
+import { app } from './app.ts';
+
+dotenv.config({ path: './config.env' });
 
 const server = http.createServer(app);
-dotenv.config({ path: './config.env' });
 
 const db = process?.env?.DATABASE?.replace(
   '<PASSWORD>',
