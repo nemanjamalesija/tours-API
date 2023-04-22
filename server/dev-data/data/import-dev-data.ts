@@ -9,7 +9,7 @@ import { exit } from 'process';
 const __fileName = fileURLToPath(import.meta.url);
 const __dirName = path.dirname(__fileName);
 
-dotenv.config({ path: './config.env' });
+dotenv.config({ path: `${__dirName}/../../config.env` });
 
 const db = process?.env?.DATABASE?.replace(
   '<PASSWORD>',
@@ -60,3 +60,4 @@ if (process.argv[2] === '--import') {
   deleteData();
 }
 console.log(process.argv);
+console.log(__dirName);
