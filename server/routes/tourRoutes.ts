@@ -3,10 +3,7 @@ import tourController from '../controllers/tourController.ts';
 
 const router = express.Router();
 
-router
-  .route('/')
-  .get(tourController.getAllTours)
-  .post(tourController.checkBody, tourController.createTour);
+router.route('/').get(tourController.getAllTours).post(tourController.createTour);
 
 router
   .route('/:id')

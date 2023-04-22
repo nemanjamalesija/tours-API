@@ -35,7 +35,7 @@ const toursSchema = new mongoose.Schema({
     required: [true, 'A tour must have a group size'],
   },
 
-  diffuculty: {
+  difficulty: {
     type: String,
     required: [true, 'A tour must have a difficulty'],
   },
@@ -63,7 +63,7 @@ const toursSchema = new mongoose.Schema({
     default: Date.now(),
   },
 
-  startDates: [Date], 
+  startDates: [Date],
 });
 
 const Tour = mongoose.model('Tour', toursSchema);

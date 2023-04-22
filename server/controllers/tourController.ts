@@ -1,24 +1,72 @@
 import { NextFunction, Request, Response } from 'express';
 import Tour from '../models/Tour.ts';
 
-const checkBody = (req: Request, res: Response, next: NextFunction) => {
-  if (!req.body.name || !req.body.price) {
-    return res.status(400).json({
+const getAllTours = async (req: Request, res: Response) => {
+  try {
+    const tours = await Tour.find();
+    res.status(200).json({
+      status: 'sucess',
+      lenghth: tours.length,
+      tours,
+    });
+  } catch (error: any) {
+    res.status(404).json({
       status: 'fail',
-      message: 'Missing name or price',
+      message: `${error.message}`,
     });
   }
-  next();
 };
 
-const getAllTours = async (req: Request, res: Response) => {};
+const getTour = async (req: Request, res: Response) => {
+  try {
+    const currentTour = await Tour.findById(req.params.id);
+    res.status(200).json({
+      status: 'sucess',
+      tour: currentTour,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      status: 'fail',
+      message: `${error.message}`,
+    });
+  }
+};
 
-const getTour = (req: Request, res: Response) => {};
+const createTour = async (req: Request, res: Response) => {
+  try {
+    const newTour = new Tour({
+      ...req.body,
+    });
 
-const createTour = async (req: Request, res: Response) => {};
+    await newTour.save();
+
+    res.status(201).json({
+      status: 'sucess',
+      createdTour: newTour,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      status: 'fail',
+      message: `${error.message}`,
+    });
+  }
+};
 
 const updateTour = (req: Request, res: Response) => {};
 
-const deleteTour = (req: Request, res: Response) => {};
+const deleteTour = async (req: Request, res: Response) => {
+  try {
+    const deletedTour = await Tour.findByIdAndDelete(req.params.id);
+    res.status(500).json({
+      status: 'sucess',
+      deletedTour,
+    });
+  } catch (error: any) {
+    res.status(501).json({
+      status: 'fail',
+      message: `${error.message}`,
+    });
+  }
+};
 
-export default { checkBody, getAllTours, getTour, createTour, updateTour, deleteTour };
+export default { getAllTours, getTour, createTour, updateTour, deleteTour };
