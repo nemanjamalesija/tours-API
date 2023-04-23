@@ -4,7 +4,7 @@ import Tour from '../models/Tour.ts';
 const getAllTours = async (req: Request, res: Response) => {
   try {
     console.log(req.query);
-    console.log(req.query.sort);
+
     // BUILD QUERY
     // 1a Filtering
     const queryObject = { ...req.query };
@@ -23,8 +23,9 @@ const getAllTours = async (req: Request, res: Response) => {
       console.log(sortBy);
 
       query = query.sort(sortBy);
-      // EXECUTE QUERY
-    }
+    } else query = query.sort('price');
+
+    // EXECUTE QUERY
     const tours = await query;
 
     // SEND RESPONSE
