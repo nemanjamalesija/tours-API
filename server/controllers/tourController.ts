@@ -1,23 +1,30 @@
 import { NextFunction, Request, Response } from 'express';
 import Tour from '../models/Tour.ts';
-import { match } from 'assert';
 
 const getAllTours = async (req: Request, res: Response) => {
   try {
     console.log(req.query);
+    console.log(req.query.sort);
     // BUILD QUERY
-    // 1.Filtering
+    // 1a Filtering
     const queryObject = { ...req.query };
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
     excludedFields.forEach((el) => delete queryObject[el]);
 
-    // 2. Advanced filtering gte, gt, lte, lt => $gte $gt $lte $lt
+    // 1b Advanced filtering gte, gt, lte, lt => $gte $gt $lte $lt
     let queryString = JSON.stringify(queryObject);
     queryString = queryString.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
 
-    const query = Tour.find(JSON.parse(queryString));
+    let query = Tour.find(JSON.parse(queryString));
 
-    // EXECUTE QUERY
+    // 1c Sorting
+    if (req.query.sort) {
+      const sortBy = req.query.sort.toString().split(',').join(' ');
+      console.log(sortBy);
+
+      query = query.sort(sortBy);
+      // EXECUTE QUERY
+    }
     const tours = await query;
 
     // SEND RESPONSE
@@ -69,7 +76,27 @@ const createTour = async (req: Request, res: Response) => {
   }
 };
 
-const updateTour = (req: Request, res: Response) => {};
+const updateTour = async (req: Request, res: Response) => {
+  console.log(req.body);
+  console.log('aa');
+
+  try {
+    const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    res.status(201).json({
+      status: 'sucess',
+      updatedTour,
+    });
+  } catch (error: any) {
+    res.status(501).json({
+      status: 'fail',
+      message: `${error.message}`,
+    });
+  }
+};
 
 const deleteTour = async (req: Request, res: Response) => {
   try {
