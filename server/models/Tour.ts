@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
+import { TourType } from '../types/modelsTypes.ts';
 
-const toursSchema = new mongoose.Schema({
+const toursSchema = new mongoose.Schema<TourType>({
   name: {
     type: String,
     required: [true, 'A tour must have a name'],
@@ -48,7 +49,7 @@ const toursSchema = new mongoose.Schema({
 
   descrption: {
     type: String,
-    trime: true,
+    trim: true,
   },
 
   imageCover: {
@@ -67,6 +68,4 @@ const toursSchema = new mongoose.Schema({
   startDates: [Date],
 });
 
-const Tour = mongoose.model('Tour', toursSchema);
-
-export default Tour;
+export default mongoose.model<TourType>('Tour', toursSchema);

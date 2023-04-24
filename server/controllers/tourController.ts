@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import Tour from '../models/Tour.ts';
+import { ParsedQs } from 'qs';
+import { APIFeaturesType, APIFeaturesQueryType } from '../types/featuresTypes.ts';
 
 // get top 5 tours middleware
 const aliasTopTours = (req: Request, res: Response, next: NextFunction) => {
@@ -8,53 +10,84 @@ const aliasTopTours = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
-const getAllTours = async (req: Request, res: Response) => {
-  try {
-    console.log(req.query);
+class APIFeatures implements APIFeaturesType {
+  query: APIFeaturesQueryType;
+  queryString: ParsedQs;
 
-    // BUILDING QUERY
+  constructor(query: APIFeaturesQueryType, queryString: ParsedQs) {
+    this.query = query;
+    this.queryString = queryString;
+  }
 
-    // 1a Filtering
-    const queryObject = { ...req.query };
+  //1 filtering
+  filter() {
+    // 1a excluding fields
+    const queryObject = { ...this.queryString };
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
     excludedFields.forEach((el) => delete queryObject[el]);
 
     // 1b Advanced filtering gte, gt, lte, lt => $gte $gt $lte $lt
-    let queryString = JSON.stringify(queryObject);
-    queryString = queryString.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    let queryStr = JSON.stringify(queryObject);
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
 
-    let query = Tour.find(JSON.parse(queryString));
+    this.query.find(JSON.parse(queryStr));
 
-    // 2 sorting
-    if (req.query.sort) {
-      const sortBy = req.query.sort.toString().split(',').join(' ');
+    return this;
+  }
+
+  // 2 sorting
+  sort() {
+    if (this.queryString.sort) {
+      const sortBy = this.queryString.sort.toString().split(',').join(' ');
       console.log(sortBy);
 
-      query = query.sort(sortBy);
-    } else query = query.sort('price');
+      this.query = this.query.sort(sortBy);
+    } else this.query = this.query.sort('price');
 
-    // 3 field mimiting
-    if (req.query.fields) {
-      const fields = req.query.fields.toString().split(',').join(' ');
+    return this;
+  }
 
-      query = query.select(fields);
-    } else query = query.select('-__v');
+  // 3 field limiting
+  select() {
+    if (this.queryString.fields) {
+      const fields = this.queryString.fields.toString().split(',').join(' ');
 
+      this.query = this.query.select(fields);
+    } else this.query = this.query.select('-__v');
+
+    return this;
+  }
+
+  paginate() {
     // 4 pagination
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 100;
+
+    const page = Number(this.queryString.page) || 1;
+    const limit = Number(this.queryString.limit) || 100;
     const skip = (page - 1) * limit;
 
-    query = query.skip(skip).limit(limit);
+    this.query = this.query.skip(skip).limit(limit);
 
-    if (req.query.page) {
-      const numTours = await Tour.countDocuments();
-
-      if (skip >= numTours) throw new Error('This page does not exist!');
+    if (this.queryString.page) {
+      const countDocumentsAsync = async () => await Tour.countDocuments();
+      countDocumentsAsync().then((numTours) => {
+        if (skip >= numTours) throw new Error('This page does not exist!');
+      });
     }
 
+    return this;
+  }
+}
+
+const getAllTours = async (req: Request, res: Response) => {
+  try {
     // EXECUTE QUERY
-    const tours = await query;
+    const features = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .select()
+      .paginate();
+
+    const tours = await features.query;
 
     // SEND RESPONSE
     res.status(200).json({
