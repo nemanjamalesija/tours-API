@@ -1,5 +1,5 @@
-import Tour from '../models/Tour.ts';
 import { APIFeaturesQueryType, APIFeaturesType } from '../types/featuresTypes.ts';
+import Tour from '../models/Tour.ts';
 import { ParsedQs } from 'qs';
 
 class APIFeatures implements APIFeaturesType {
@@ -49,10 +49,8 @@ class APIFeatures implements APIFeaturesType {
 
     return this;
   }
-
+  // 4 pagination
   paginate() {
-    // 4 pagination
-
     const page = Number(this.queryString.page) || 1;
     const limit = Number(this.queryString.limit) || 100;
     const skip = (page - 1) * limit;
