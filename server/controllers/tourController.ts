@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
-import Tour from '../models/Tour.ts';
 import APIFeatures from '../helpers/APIFeatures.ts';
+import Tour from '../models/Tour.ts';
 
 // get top 5 tours middleware
 const aliasTopTours = (req: Request, res: Response, next: NextFunction) => {
@@ -24,7 +24,7 @@ const getAllTours = async (req: Request, res: Response) => {
     res.status(200).json({
       status: 'sucess',
       lenghth: tours.length,
-      tours,
+      data: tours,
     });
   } catch (error: any) {
     res.status(404).json({
@@ -39,7 +39,7 @@ const getTour = async (req: Request, res: Response) => {
     const currentTour = await Tour.findById(req.params.id);
     res.status(200).json({
       status: 'sucess',
-      tour: currentTour,
+      data: currentTour,
     });
   } catch (error: any) {
     res.status(500).json({
@@ -59,7 +59,7 @@ const createTour = async (req: Request, res: Response) => {
 
     res.status(201).json({
       status: 'sucess',
-      createdTour: newTour,
+      data: newTour,
     });
   } catch (error: any) {
     res.status(500).json({
@@ -81,7 +81,7 @@ const updateTour = async (req: Request, res: Response) => {
 
     res.status(201).json({
       status: 'sucess',
-      updatedTour,
+      data: updatedTour,
     });
   } catch (error: any) {
     res.status(501).json({
@@ -106,6 +106,39 @@ const deleteTour = async (req: Request, res: Response) => {
   }
 };
 
+// AGREGATION PIPELINE
+const getTourStats = async (req: Request, res: Response) => {
+  try {
+    const stats = await Tour.aggregate([
+      {
+        $match: { ratingsAverage: { $gte: 4.5 } },
+      },
+
+      {
+        $group: {
+          _id: { $toUpper: '$difficulty' },
+          numTours: { $sum: 1 },
+          numRatings: { $sum: '$ratingsQuantity' },
+          averageRating: { $avg: '$ratingsAverage' },
+          averagePrice: { $avg: '$price' },
+          minPrice: { $min: '$price' },
+          maxPrice: { $max: '$price' },
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      message: 'sucess',
+      data: stats,
+    });
+  } catch (error: any) {
+    res.status(404).json({
+      status: 'fail',
+      message: `${error.message}`,
+    });
+  }
+};
+
 export default {
   aliasTopTours,
   getAllTours,
@@ -113,4 +146,5 @@ export default {
   createTour,
   updateTour,
   deleteTour,
+  getTourStats,
 };
