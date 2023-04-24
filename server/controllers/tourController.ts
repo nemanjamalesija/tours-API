@@ -125,6 +125,8 @@ const getTourStats = async (req: Request, res: Response) => {
           maxPrice: { $max: '$price' },
         },
       },
+
+      { $sort: { averageRating: -1 } },
     ]);
 
     res.status(200).json({
