@@ -70,9 +70,6 @@ const createTour = async (req: Request, res: Response) => {
 };
 
 const updateTour = async (req: Request, res: Response) => {
-  console.log(req.body);
-  console.log('aa');
-
   try {
     const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
