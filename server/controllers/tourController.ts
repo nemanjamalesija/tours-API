@@ -1,11 +1,18 @@
 import { NextFunction, Request, Response } from 'express';
 import Tour from '../models/Tour.ts';
 
+// get top 5 tours middleware
+const aliasTopTours = (req: Request, res: Response, next: NextFunction) => {
+  (req.query.limit = '5'), (req.query.sort = '-ratingsAverage,price');
+  req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+  next();
+};
+
 const getAllTours = async (req: Request, res: Response) => {
   try {
     console.log(req.query);
 
-    // 1 BUILDING QUERY
+    // BUILDING QUERY
 
     // 1a Filtering
     const queryObject = { ...req.query };
@@ -18,7 +25,7 @@ const getAllTours = async (req: Request, res: Response) => {
 
     let query = Tour.find(JSON.parse(queryString));
 
-    // 2 SORTING
+    // 2 sorting
     if (req.query.sort) {
       const sortBy = req.query.sort.toString().split(',').join(' ');
       console.log(sortBy);
@@ -26,21 +33,21 @@ const getAllTours = async (req: Request, res: Response) => {
       query = query.sort(sortBy);
     } else query = query.sort('price');
 
-    //3 FIELD LIMITING
+    // 3 field mimiting
     if (req.query.fields) {
       const fields = req.query.fields.toString().split(',').join(' ');
 
       query = query.select(fields);
     } else query = query.select('-__v');
 
-    // PAGINATION
+    // 4 pagination
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 100;
     const skip = (page - 1) * limit;
 
     query = query.skip(skip).limit(limit);
 
-    if (req.query.page && ) {
+    if (req.query.page) {
       const numTours = await Tour.countDocuments();
 
       if (skip >= numTours) throw new Error('This page does not exist!');
@@ -135,4 +142,11 @@ const deleteTour = async (req: Request, res: Response) => {
   }
 };
 
-export default { getAllTours, getTour, createTour, updateTour, deleteTour };
+export default {
+  aliasTopTours,
+  getAllTours,
+  getTour,
+  createTour,
+  updateTour,
+  deleteTour,
+};
