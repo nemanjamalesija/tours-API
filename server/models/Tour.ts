@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { TourType } from '../types/modelsTypes.ts';
 import slugify from '../helpers/slugify.ts';
 
-const toursSchema = new mongoose.Schema<TourType>(
+const toursSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -37,7 +37,9 @@ const toursSchema = new mongoose.Schema<TourType>(
       required: [true, 'A tour must have a price'],
     },
 
-    priceDiscount: Number,
+    priceDiscount: {
+      type: Number,
+    },
 
     maxGroupSize: {
       type: Number,
@@ -134,3 +136,13 @@ toursSchema.virtual('durationWeeks').get(function () {
 });
 
 export default mongoose.model<TourType>('Tour', toursSchema);
+
+// CUSTOM VALIDATORS
+toursSchema.path('priceDiscount').validate(function (value: number) {
+  if (value >= this.get('price')) {
+    throw new Error(
+      `Price discount: ${value} must be less than price: ${this.get('price')}`
+    );
+  }
+  return true;
+});
