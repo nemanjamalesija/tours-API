@@ -138,6 +138,8 @@ const getTourStats = async (req: Request, res: Response) => {
   }
 };
 
+`mali drazen iz somica zivio je preko pica`;
+
 const getMonthlyPlan = async (req: Request, res: Response) => {
   try {
     const year = Number(req.params.year);

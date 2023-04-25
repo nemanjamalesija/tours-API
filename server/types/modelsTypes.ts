@@ -1,4 +1,4 @@
-import { Document } from 'mongoose';
+import { Document, ToObjectOptions, Types } from 'mongoose';
 
 export type TourType = Document & {
   name: string;
