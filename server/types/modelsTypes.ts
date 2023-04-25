@@ -16,4 +16,5 @@ export type TourType = Document & {
   createdAt: Date;
   startDates?: Date[];
   slug?: string;
+  secretTour?: Boolean;
 };

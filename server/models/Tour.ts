@@ -68,6 +68,11 @@ const toursSchema = new mongoose.Schema<TourType>(
       default: Date.now(),
       select: false,
     },
+
+    secretTour: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   // virtual properties
@@ -95,10 +100,22 @@ toursSchema.pre('save', function (next) {
 //   next();
 // });
 
+// QUERY MIDDLEWARE
+toursSchema.pre(/^find/, function (next) {
+  this.find({ secretTour: { $ne: true } });
+
+  next();
+});
+
+toursSchema.post(/^find/, function (docs, next) {
+  console.log(docs);
+
+  next();
+});
+
+// VIRTUAL PROPERTIES
 toursSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
 
 export default mongoose.model<TourType>('Tour', toursSchema);
-
-toursSchema.pre('save', function (aa) {});
