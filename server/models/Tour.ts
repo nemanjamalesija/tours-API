@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { TourType } from '../types/modelsTypes.ts';
+import sligufy from 'slugify';
 
 const toursSchema = new mongoose.Schema<TourType>(
   {
@@ -73,6 +74,10 @@ const toursSchema = new mongoose.Schema<TourType>(
     toObject: { virtuals: true },
   }
 );
+
+toursSchema.pre('save', function () {
+  console.log(this);
+});
 
 toursSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
