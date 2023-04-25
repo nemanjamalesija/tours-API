@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import { TourType } from '../types/modelsTypes.ts';
-import * as Slugify from 'slugify';
-const slugify = Slugify.default;
+import slugify from '../helpers/slugify.ts';
 
 const toursSchema = new mongoose.Schema<TourType>(
   {
@@ -11,6 +10,8 @@ const toursSchema = new mongoose.Schema<TourType>(
       unique: true,
       trim: true,
     },
+
+    slug: String,
 
     duration: {
       type: Number,
@@ -76,11 +77,23 @@ const toursSchema = new mongoose.Schema<TourType>(
   }
 );
 
+// DOCUMENT MIDDLEWARE
 toursSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
 
   next();
 });
+
+// toursSchema.pre('save', function (next) {
+//   console.log('Will save document now...');
+//   next();
+// });
+
+// toursSchema.post('save', function (doc, next) {
+//   console.log(doc);
+
+//   next();
+// });
 
 toursSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
