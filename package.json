@@ -4,6 +4,7 @@
     "validator": "^13.9.0"
   },
   "devDependencies": {
+    "@types/validator": "^13.7.15",
     "esm": "^3.2.25"
   }
 }
