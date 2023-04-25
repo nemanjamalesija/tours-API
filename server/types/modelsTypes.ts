@@ -15,4 +15,5 @@ export type TourType = Document & {
   images?: string[];
   createdAt: Date;
   startDates?: Date[];
+  slug?: string;
 };
