@@ -30,11 +30,13 @@ app.all('*', (req, res, next) => {
 });
 
 app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
+  console.log(err.stack);
+
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
   res.status(err.statusCode).json({
-    status: 'error',
+    status: 'fail',
     message: err.message,
   });
 });

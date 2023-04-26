@@ -1,8 +1,8 @@
-import { APIFeaturesQueryType, APIFeaturesType } from '../types/featuresTypes.ts';
+import { APIFeaturesQueryType } from '../types/featuresTypes.ts';
 import Tour from '../models/Tour.ts';
 import { ParsedQs } from 'qs';
 
-class APIFeatures implements APIFeaturesType {
+class APIFeatures {
   query: APIFeaturesQueryType;
   queryString: ParsedQs;
 
