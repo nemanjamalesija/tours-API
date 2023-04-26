@@ -8,8 +8,6 @@ const globalErrorHandler = (
   next: NextFunction
 ) => {
   console.log(err.stack);
-  console.log(err.status);
-  console.log(err.message);
 
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';

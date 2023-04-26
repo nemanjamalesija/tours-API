@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from 'express';
 import APIFeatures from '../helpers/APIFeatures.ts';
 import Tour from '../models/Tour.ts';
 import catchAsync from '../helpers/catchAsync.ts';
+import AppError from '../helpers/appError.ts';
+import { nextTick } from 'process';
 
 // get top 5 tours middleware
 const aliasTopTours = (req: Request, res: Response, next: NextFunction) => {
@@ -28,8 +30,15 @@ const getAllTours = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getTour = catchAsync(async (req: Request, res: Response) => {
+const getTour = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const currentTour = await Tour.findById(req.params.id);
+
+  if (!currentTour) {
+    const error = new AppError('No tour with that ID', 'fail', 404);
+
+    return next(error);
+  }
+
   res.status(200).json({
     status: 'sucess',
     data: currentTour,
@@ -49,11 +58,17 @@ const createTour = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const updateTour = catchAsync(async (req: Request, res: Response) => {
+const updateTour = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
   });
+
+  if (!updatedTour) {
+    const error = new AppError('No tour with that ID', 'fail', 404);
+
+    return next(error);
+  }
 
   res.status(201).json({
     status: 'sucess',
@@ -61,8 +76,15 @@ const updateTour = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const deleteTour = catchAsync(async (req: Request, res: Response) => {
+const deleteTour = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const deletedTour = await Tour.findByIdAndDelete(req.params.id);
+
+  if (!deletedTour) {
+    const error = new AppError('No tour with that ID', 'fail', 404);
+
+    return next(error);
+  }
+
   res.status(500).json({
     status: 'sucess',
     deletedTour,
