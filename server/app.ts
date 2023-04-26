@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { NextFunction, Request, Response, Errback } from 'express';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
@@ -19,5 +19,13 @@ app.use(express.static(`${__dirName}/public`));
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+
+/* Handle wrong main url */
+app.all('*', (req, res, next) => {
+  res.status(404).json({
+    status: 'fail',
+    message: `Can't find ${req.originalUrl} on this server`,
+  });
+});
 
 export { app };
