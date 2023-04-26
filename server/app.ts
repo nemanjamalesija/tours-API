@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response, Errback } from 'express';
+import express from 'express';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
@@ -7,7 +7,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import tourRouter from './routes/tourRoutes.ts';
 import userRouter from './routes/userRoutes.ts';
-import { HttpError } from './types/errorType.ts';
+import AppError from './helpers/appError.ts';
+import { globalErrorHandler } from './controllers/errorController.ts';
 
 const __fileName = fileURLToPath(import.meta.url);
 const __dirName = path.dirname(__fileName);
@@ -22,23 +23,12 @@ app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
 /* Handle wrong main url */
-
 app.all('*', (req, res, next) => {
-  const err: HttpError = new Error(`Can't find ${req.originalUrl} on this server`);
+  const error = new AppError(`Can't find ${req.originalUrl} on this server`, 'fail', 404);
 
-  (err.status = 'fail'), (err.statusCode = 404), next(err);
+  next(error);
 });
 
-app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
-  console.log(err.stack);
+app.use(globalErrorHandler);
 
-  err.statusCode = err.statusCode || 500;
-  err.status = err.status || 'error';
-
-  res.status(err.statusCode).json({
-    status: 'fail',
-    message: err.message,
-  });
-});
-
-export { app };
+export default app;
