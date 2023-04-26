@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response, Errback } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import AsyncRequestHandlerType from '../types/asyncRequestHandler.ts';
 
 const catchAsync = (func: AsyncRequestHandlerType) => {
