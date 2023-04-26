@@ -7,6 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import tourRouter from './routes/tourRoutes.ts';
 import userRouter from './routes/userRoutes.ts';
+import { HttpError } from './types/errorType.ts';
 
 const __fileName = fileURLToPath(import.meta.url);
 const __dirName = path.dirname(__fileName);
@@ -21,10 +22,20 @@ app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
 /* Handle wrong main url */
+
 app.all('*', (req, res, next) => {
-  res.status(404).json({
-    status: 'fail',
-    message: `Can't find ${req.originalUrl} on this server`,
+  const err: HttpError = new Error(`Can't find ${req.originalUrl} on this server`);
+
+  (err.status = 'fail'), (err.statusCode = 404), next(err);
+});
+
+app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
+  err.statusCode = err.statusCode || 500;
+  err.status = err.status || 'error';
+
+  res.status(err.statusCode).json({
+    status: 'error',
+    message: err.message,
   });
 });
 
