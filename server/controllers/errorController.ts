@@ -1,15 +1,24 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { HttpError } from '../types/errorType.ts';
 
-export const globalErrorHandler = (err: HttpError, req: Request, res: Response) => {
+const globalErrorHandler = (
+  err: HttpError,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   console.log(err.stack);
+  console.log(err.status);
+  console.log(err.message);
 
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
-  res.status(err.statusCode).json({
+  return res.status(err.statusCode).json({
     statusCode: err.statusCode,
     status: 'fail',
     message: err.message,
   });
 };
+
+export default globalErrorHandler;

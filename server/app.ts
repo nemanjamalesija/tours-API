@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { NextFunction, Request, Response, Errback } from 'express';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
@@ -8,7 +8,8 @@ import { fileURLToPath } from 'url';
 import tourRouter from './routes/tourRoutes.ts';
 import userRouter from './routes/userRoutes.ts';
 import AppError from './helpers/appError.ts';
-import { globalErrorHandler } from './controllers/errorController.ts';
+import { HttpError } from './types/errorType.ts';
+import globalErrorHandler from './controllers/errorController.ts';
 
 const __fileName = fileURLToPath(import.meta.url);
 const __dirName = path.dirname(__fileName);
@@ -29,6 +30,7 @@ app.all('*', (req, res, next) => {
   next(error);
 });
 
+// global error handler
 app.use(globalErrorHandler);
 
 export default app;
