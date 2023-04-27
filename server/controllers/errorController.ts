@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import AppError from '../helpers/appError.ts';
 import { HttpError } from '../types/errorType.ts';
-import { errorMongoDB } from '../types/errorMongoDB.ts';
+import { castErrorDB } from '../types/castError.ts';
+import { validatorErrorDB } from '../types/validatorError.ts';
 
 const handleOperationalError = (res: Response, err: any) => {
   return res.status(err.statusCode || 500).json({
@@ -11,8 +12,16 @@ const handleOperationalError = (res: Response, err: any) => {
   });
 };
 
-const handleCastErrorDB = (err: any) => {
+const handleCastErrorDB = (err: castErrorDB) => {
   const message = `Invalid ${err.path}: ${err.value}`;
+
+  return new AppError(message, 'fail', 404);
+};
+
+const handleValidationErrorDB = (err: castErrorDB) => {
+  const tourName = err.keyValue.name; // Extract the tour name
+
+  const message = `The tour under the name ${tourName} already exists`;
 
   return new AppError(message, 'fail', 404);
 };
@@ -29,12 +38,13 @@ const handleProgrammingError = (res: Response, err: any) => {
 };
 
 const globalErrorHandler = (
-  err: HttpError | errorMongoDB,
+  err: HttpError | castErrorDB | validatorErrorDB,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   console.log(err.stack);
+  console.log(err);
 
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
@@ -46,12 +56,19 @@ const globalErrorHandler = (
 
   // Programming or other unknown error: don't leak error
   else {
-    let error: errorMongoDB = { ...err };
+    let error: castErrorDB | validatorErrorDB = { ...err };
 
-    if (err.name === 'CastError') {
-      error = handleCastErrorDB(error);
-    }
-    handleOperationalError(res, error as errorMongoDB);
+    if (err.name === 'CastError') error = handleCastErrorDB(error as castErrorDB);
+
+    if (error.code === 11000) error = handleValidationErrorDB(error as validatorErrorDB);
+
+    // if (err.name === 'ValidationError') {
+    //   error = handleValidationErrorDB(error);
+    // }
+
+    console.log(JSON.stringify(error));
+
+    handleOperationalError(res, error);
   }
 };
 

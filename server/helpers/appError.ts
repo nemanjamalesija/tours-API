@@ -1,4 +1,4 @@
-import { errorMongoDB } from '../types/errorMongoDB.ts';
+import { castErrorDB } from '../types/castError.ts';
 import { HttpError } from '../types/errorType.ts';
 
 class AppError extends Error {
