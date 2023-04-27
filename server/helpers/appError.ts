@@ -1,3 +1,6 @@
+import { errorMongoDB } from '../types/errorMongoDB.ts';
+import { HttpError } from '../types/errorType.ts';
+
 class AppError extends Error {
   status: string;
   statusCode: number;
