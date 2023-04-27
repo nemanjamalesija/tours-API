@@ -12,11 +12,25 @@ const globalErrorHandler = (
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
-  return res.status(err.statusCode).json({
-    statusCode: err.statusCode,
-    status: 'fail',
-    message: err.message,
-  });
+  // Operational, trusted error: send message to client
+  if (err.isOperational) {
+    res.status(err.statusCode).json({
+      statusCode: err.statusCode,
+      status: 'fail',
+      message: err.message,
+    });
+  }
+  // Programming or other unknown error: don't leak error
+  else {
+    // 1. Log error
+    console.error(`ERROR: ${err}`);
+
+    // 2. Send generic response
+    res.status(500).json({
+      status: 'error',
+      message: 'Something went wrong',
+    });
+  }
 };
 
 export default globalErrorHandler;
