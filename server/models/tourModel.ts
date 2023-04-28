@@ -137,8 +137,6 @@ toursSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
 
-export default mongoose.model<TourType>('Tour', toursSchema);
-
 // CUSTOM VALIDATORS
 toursSchema.path('priceDiscount').validate(function (value: number) {
   if (value >= this.get('price')) {
@@ -148,3 +146,7 @@ toursSchema.path('priceDiscount').validate(function (value: number) {
   }
   return true;
 });
+
+const Tour = mongoose.model<TourType>('Tour', toursSchema);
+
+export default Tour;
