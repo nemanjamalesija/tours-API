@@ -28,6 +28,8 @@ app.all('*', (req: Request, res: Response, next: NextFunction) => {
     status: 'fail',
     message: `Can't find ${req.originalUrl} on this server`,
   });
+
+  next();
 });
 
 app.use(globalErrorHandler);

@@ -29,6 +29,14 @@ const userSchema = new mongoose.Schema<userType>({
   },
 });
 
-const User = mongoose.model<userType>('User,', userSchema);
+// validate password (works only on create and save)
+userSchema.path('passwordConfirm').validate(function (value: string) {
+  if (value !== this.get('password')) {
+    throw new Error('Passwords are not the same!');
+  }
+  return true;
+});
+
+const User = mongoose.model<userType>('User', userSchema);
 
 export default User;
