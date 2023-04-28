@@ -1,16 +1,39 @@
 import { NextFunction, Request, Response } from 'express';
 import AppError from '../helpers/appError.ts';
-import { HttpError } from '../types/errorType.ts';
 import { castErrorDB } from '../types/castError.ts';
 import { duplicateErrorDB } from '../types/duplicateError.ts';
 import { validatorErrorDB } from '../types/validatorError.ts';
 
-const handleOperationalError = (res: Response, err: any) => {
-  return res.status(err.statusCode || 500).json({
-    statusCode: err.statusCode,
-    status: 'fail',
-    message: err.message || 'Something went wrong',
+const sendErrorDev = (res: Response, err: any) => {
+  res.status(err.statusCode || 500).json({
+    status: err.status,
+    error: err,
+    message: err.message,
+    stack: err.stack,
   });
+};
+
+const sendErrorProd = (res: Response, err: any) => {
+  console.log(JSON.stringify(err));
+
+  // Operational, trusted error: send message to client
+  if (err.isOperational) {
+    res.status(err.statusCode).json({
+      status: err.status,
+      message: err.message,
+    });
+
+    // Programming or other unknown error: don't leak error details
+  } else {
+    // 1) Log error
+    console.error('ERROR 🔥', err);
+
+    // 2) Send generic message
+    res.status(500).json({
+      status: 'error',
+      message: 'Something went wrong!',
+    });
+  }
 };
 
 const handleCastErrorDB = (err: castErrorDB) => {
@@ -19,7 +42,7 @@ const handleCastErrorDB = (err: castErrorDB) => {
   return new AppError(message, 'fail', 404);
 };
 
-const handleDuplicateFieldErrorHandlerDB = (err: duplicateErrorDB) => {
+const handleDuplicateFieldErrorDB = (err: duplicateErrorDB) => {
   const tourName = err.keyValue.name;
 
   const message = `The tour under the name ${tourName} already exists`;
@@ -35,38 +58,41 @@ const handleValidatorErrorDB = (err: validatorErrorDB) => {
 };
 
 const globalErrorHandler = (
-  err: HttpError | castErrorDB | duplicateErrorDB | validatorErrorDB,
+  err: any,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  console.log(err.stack);
-  console.log(err);
+  console.log(process.env.NODE_ENV);
 
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
-  // Operational, trusted error: send message to client
-  if (err.isOperational) {
-    handleOperationalError(res, err as HttpError);
+  // DEVELOPMENT ERROR HANDLING
+  if (process.env.NODE_ENV === 'development') {
+    sendErrorDev(res, err);
   }
 
-  // mongoDB errors
+  // PRODUCTION ERROR HANDLING
   else {
-    let error: castErrorDB | duplicateErrorDB | validatorErrorDB = { ...err };
+    let error = { ...err };
 
-    // 1. Id doesn't exist
-    if (err.name === 'CastError') error = handleCastErrorDB(error as castErrorDB);
+    // MONGO DB ERRORS
+    // 1. Cast error
+    if (err.name === 'CastError')
+      error = handleCastErrorDB(error as castErrorDB);
 
-    // 2. Tour already exists
-    if (error.code) error = handleDuplicateFieldErrorHandlerDB(error as duplicateErrorDB);
+    // 2. Tour name already exist
+    if (err.code === 11000)
+      error = handleDuplicateFieldErrorDB(error as duplicateErrorDB);
 
-    // 3. Validation error
+    // 3. Didn't specify all fields
     if (err.name === 'ValidationError')
       error = handleValidatorErrorDB(error as validatorErrorDB);
 
+    sendErrorProd(res, error);
+
     console.log(JSON.stringify(err));
-    handleOperationalError(res, error);
   }
 };
 

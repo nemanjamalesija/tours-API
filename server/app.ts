@@ -23,14 +23,13 @@ app.use(express.static(`${__dirName}/public`));
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
-/* Handle wrong main url */
-app.all('*', (req, res, next) => {
-  const error = new AppError(`Can't find ${req.originalUrl} on this server`, 'fail', 404);
-
-  next(error);
+app.all('*', (req: Request, res: Response, next: NextFunction) => {
+  res.status(404).json({
+    status: 'fail',
+    message: `Can't find ${req.originalUrl} on this server`,
+  });
 });
 
-// global error handler
 app.use(globalErrorHandler);
 
 export default app;
