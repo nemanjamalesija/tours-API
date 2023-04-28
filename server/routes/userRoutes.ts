@@ -1,9 +1,15 @@
 import express from 'express';
 import userController from '../controllers/userController.ts';
+import authController from '../controllers/authController.ts';
 
 const router = express.Router();
 
-router.route('/').get(userController.getAllUsers).post(userController.createUser);
+router.post('/signup', authController.signUp);
+
+router
+  .route('/')
+  .get(userController.getAllUsers)
+  .post(userController.createUser);
 
 router
   .route('/:id')
