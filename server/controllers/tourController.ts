@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import APIFeatures from '../helpers/APIFeatures.ts';
-import Tour from '../models/Tour.ts';
+import tourModel from '../models/tourModel.ts';
 import catchAsync from '../helpers/catchAsync.ts';
 import AppError from '../helpers/appError.ts';
 import { nextTick } from 'process';
@@ -14,7 +14,7 @@ const aliasTopTours = (req: Request, res: Response, next: NextFunction) => {
 
 const getAllTours = catchAsync(async (req: Request, res: Response) => {
   // EXECUTE QUERY
-  const features = new APIFeatures(Tour.find(), req.query)
+  const features = new APIFeatures(tourModel.find(), req.query)
     .filter()
     .sort()
     .select()
@@ -31,7 +31,7 @@ const getAllTours = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getTour = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const currentTour = await Tour.findById(req.params.id);
+  const currentTour = await tourModel.findById(req.params.id);
 
   if (!currentTour) {
     const error = new AppError('There is no tour with that ID', 'fail', 404);
@@ -46,7 +46,7 @@ const getTour = catchAsync(async (req: Request, res: Response, next: NextFunctio
 });
 
 const createTour = catchAsync(async (req: Request, res: Response) => {
-  const newTour = new Tour({
+  const newTour = new tourModel({
     ...req.body,
   });
 
@@ -59,7 +59,7 @@ const createTour = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateTour = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+  const updatedTour = await tourModel.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
   });
@@ -77,7 +77,7 @@ const updateTour = catchAsync(async (req: Request, res: Response, next: NextFunc
 });
 
 const deleteTour = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const deletedTour = await Tour.findByIdAndDelete(req.params.id);
+  const deletedTour = await tourModel.findByIdAndDelete(req.params.id);
 
   if (!deletedTour) {
     const error = new AppError('No tour with that ID', 'fail', 404);
@@ -93,7 +93,7 @@ const deleteTour = catchAsync(async (req: Request, res: Response, next: NextFunc
 
 // AGREGATION PIPELINE
 const getTourStats = catchAsync(async (req: Request, res: Response) => {
-  const stats = await Tour.aggregate([
+  const stats = await tourModel.aggregate([
     {
       $match: { ratingsAverage: { $gte: 4.5 } },
     },
@@ -122,7 +122,7 @@ const getTourStats = catchAsync(async (req: Request, res: Response) => {
 const getMonthlyPlan = catchAsync(async (req: Request, res: Response) => {
   const year = Number(req.params.year);
 
-  const plan = await Tour.aggregate([
+  const plan = await tourModel.aggregate([
     {
       $unwind: '$startDates',
     },

@@ -1,5 +1,5 @@
 import { APIFeaturesQueryType } from '../types/featuresTypes.ts';
-import Tour from '../models/Tour.ts';
+import Tour from '../models/tourModel.ts';
 import { ParsedQs } from 'qs';
 
 class APIFeatures {
