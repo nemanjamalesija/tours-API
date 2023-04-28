@@ -30,3 +30,12 @@ mongoose
 server.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
 });
+
+process.on('unhandledRejection', (err: Error) => {
+  console.log(err.name, err.message);
+  console.log('UNHANDLED REJECTION! Shutting down...');
+
+  server.close(() => {
+    process.exit(1);
+  });
+});
