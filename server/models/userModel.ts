@@ -37,6 +37,10 @@ userSchema.path('passwordConfirm').validate(function (value: string) {
   return true;
 });
 
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password')) return next();
+});
+
 const User = mongoose.model<userType>('User', userSchema);
 
 export default User;
