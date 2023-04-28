@@ -30,21 +30,8 @@ const handleDuplicateFieldErrorHandlerDB = (err: duplicateErrorDB) => {
 const handleValidatorErrorDB = (err: validatorErrorDB) => {
   const errors = Object.values(err.errors).map((el) => el.message);
 
-  console.log(errors + 'HAKERSINOOOOOOOOOOO');
-
   const message = `Invalid input data, ${errors.join('. ')}`;
   return new AppError(message, 'fail', 404);
-};
-
-const handleProgrammingError = (res: Response, err: any) => {
-  // 1. Log error
-  console.error(`ERROR: ${err}`);
-
-  // 2. Send generic response
-  res.status(500).json({
-    status: 'error',
-    message: 'Something went wrong',
-  });
 };
 
 const globalErrorHandler = (
