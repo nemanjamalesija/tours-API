@@ -1,4 +1,4 @@
-import { Document, ToObjectOptions, Types } from 'mongoose';
+import { Document } from 'mongoose';
 
 export type TourType = Document & {
   name: string;
@@ -16,5 +16,13 @@ export type TourType = Document & {
   createdAt: Date;
   startDates?: Date[];
   slug?: string;
-  secretTour?: Boolean;
+  secretTour?: boolean;
+};
+
+export type userType = Document & {
+  name: string;
+  email: string;
+  photo: string;
+  password: string;
+  passwordConfirm: string;
 };
