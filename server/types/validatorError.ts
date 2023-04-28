@@ -1,13 +1,22 @@
 export type validatorErrorDB = Error & {
-  index: number;
-  code: number;
-  keyPattern: {
-    name: number;
+  errors: {
+    name: {
+      name: string;
+      message: string;
+      properties: {
+        message: string;
+        type: string;
+        minlength: number;
+        path: string;
+        value: string;
+      };
+      kind: string;
+      path: string;
+      value: string;
+    };
   };
-  keyValue: {
-    name: string;
-  };
+  _message: string;
   statusCode: number;
   status: string;
-  isOperational?: boolean;
+  isOperational: boolean;
 };

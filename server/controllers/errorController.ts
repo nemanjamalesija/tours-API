@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from 'express';
 import AppError from '../helpers/appError.ts';
 import { HttpError } from '../types/errorType.ts';
 import { castErrorDB } from '../types/castError.ts';
+import { duplicateErrorDB } from '../types/duplicateError.ts';
+import lodash from 'lodash';
 import { validatorErrorDB } from '../types/validatorError.ts';
 
 const handleOperationalError = (res: Response, err: any) => {
@@ -18,7 +20,7 @@ const handleCastErrorDB = (err: castErrorDB) => {
   return new AppError(message, 'fail', 404);
 };
 
-const handleValidationErrorDB = (err: castErrorDB) => {
+const handleDuplicateFieldErrorHandlerDB = (err: castErrorDB) => {
   const tourName = err.keyValue.name; // Extract the tour name
 
   const message = `The tour under the name ${tourName} already exists`;
@@ -38,7 +40,7 @@ const handleProgrammingError = (res: Response, err: any) => {
 };
 
 const globalErrorHandler = (
-  err: HttpError | castErrorDB | validatorErrorDB,
+  err: HttpError | castErrorDB | duplicateErrorDB | validatorErrorDB,
   req: Request,
   res: Response,
   next: NextFunction
@@ -56,15 +58,16 @@ const globalErrorHandler = (
 
   // Programming or other unknown error: don't leak error
   else {
-    let error: castErrorDB | validatorErrorDB = { ...err };
+    let error: castErrorDB | duplicateErrorDB | validatorErrorDB = { ...err };
 
     if (err.name === 'CastError') error = handleCastErrorDB(error as castErrorDB);
 
-    if (error.code === 11000) error = handleValidationErrorDB(error as validatorErrorDB);
+    if (lodash.get(error, 'code', null))
+      error = handleDuplicateFieldErrorHandlerDB(error as duplicateErrorDB);
 
-    // if (err.name === 'ValidationError') {
-    //   error = handleValidationErrorDB(error);
-    // }
+    if (lodash.get(error, 'errors.name.name', null) === 'ValidatorError') {
+      error = handleValidatorErrorDB(error);
+    }
 
     console.log(JSON.stringify(error));
 
