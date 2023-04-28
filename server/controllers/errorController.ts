@@ -3,14 +3,13 @@ import AppError from '../helpers/appError.ts';
 import { HttpError } from '../types/errorType.ts';
 import { castErrorDB } from '../types/castError.ts';
 import { duplicateErrorDB } from '../types/duplicateError.ts';
-import lodash from 'lodash';
 import { validatorErrorDB } from '../types/validatorError.ts';
 
 const handleOperationalError = (res: Response, err: any) => {
   return res.status(err.statusCode || 500).json({
     statusCode: err.statusCode,
     status: 'fail',
-    message: err.message,
+    message: err.message || 'Something went wrong',
   });
 };
 
@@ -20,11 +19,20 @@ const handleCastErrorDB = (err: castErrorDB) => {
   return new AppError(message, 'fail', 404);
 };
 
-const handleDuplicateFieldErrorHandlerDB = (err: castErrorDB) => {
-  const tourName = err.keyValue.name; // Extract the tour name
+const handleDuplicateFieldErrorHandlerDB = (err: duplicateErrorDB) => {
+  const tourName = err.keyValue.name;
 
   const message = `The tour under the name ${tourName} already exists`;
 
+  return new AppError(message, 'fail', 404);
+};
+
+const handleValidatorErrorDB = (err: validatorErrorDB) => {
+  const errors = Object.values(err.errors).map((el) => el.message);
+
+  console.log(errors + 'HAKERSINOOOOOOOOOOO');
+
+  const message = `Invalid input data, ${errors.join('. ')}`;
   return new AppError(message, 'fail', 404);
 };
 
@@ -56,21 +64,21 @@ const globalErrorHandler = (
     handleOperationalError(res, err as HttpError);
   }
 
-  // Programming or other unknown error: don't leak error
+  // mongoDB errors
   else {
     let error: castErrorDB | duplicateErrorDB | validatorErrorDB = { ...err };
 
+    // 1. Id doesn't exist
     if (err.name === 'CastError') error = handleCastErrorDB(error as castErrorDB);
 
-    if (lodash.get(error, 'code', null))
-      error = handleDuplicateFieldErrorHandlerDB(error as duplicateErrorDB);
+    // 2. Tour already exists
+    if (error.code) error = handleDuplicateFieldErrorHandlerDB(error as duplicateErrorDB);
 
-    if (lodash.get(error, 'errors.name.name', null) === 'ValidatorError') {
-      error = handleValidatorErrorDB(error);
-    }
+    // 3. Validation error
+    if (err.name === 'ValidationError')
+      error = handleValidatorErrorDB(error as validatorErrorDB);
 
-    console.log(JSON.stringify(error));
-
+    console.log(JSON.stringify(err));
     handleOperationalError(res, error);
   }
 };

@@ -1,4 +1,4 @@
-export type castErrorDB = {
+export type castErrorDB = Error & {
   stack?: string;
   name?: string;
   message?: string;

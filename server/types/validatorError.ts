@@ -19,4 +19,5 @@ export type validatorErrorDB = Error & {
   statusCode: number;
   status: string;
   isOperational: boolean;
+  code?: number;
 };
