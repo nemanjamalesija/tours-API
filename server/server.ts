@@ -1,6 +1,14 @@
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import http from 'http';
+
+process.on('uncaughtException', (err: Error) => {
+  console.log('UNCAUGHT EXCEPTION! 🔥  Shutting down...');
+  console.log(err.name, err.message);
+
+  process.exit(1);
+});
+
 import app from './app.ts';
 
 dotenv.config({ path: './config.env' });
@@ -33,15 +41,6 @@ server.listen(PORT, () => {
 
 process.on('unhandledRejection', (err: Error) => {
   console.log('UNHANDLED REJECTION! 🔥  Shutting down...');
-  console.log(err.name, err.message);
-
-  server.close(() => {
-    process.exit(1);
-  });
-});
-
-process.on('uncaughtException', (err: Error) => {
-  console.log('UNCAUGHT EXCEPTION! 🔥  Shutting down...');
   console.log(err.name, err.message);
 
   server.close(() => {
