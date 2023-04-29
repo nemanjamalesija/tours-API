@@ -24,5 +24,9 @@ export type userType = Document & {
   email: string;
   photo: string;
   password: string;
-  passwordConfirm: string;
+  passwordConfirm: string | undefined;
+  correctPassword: (
+    candidatePassword: string,
+    userPassword: string
+  ) => Promise<boolean>;
 };

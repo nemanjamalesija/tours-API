@@ -23,10 +23,11 @@ const userSchema = new mongoose.Schema<userType>({
     type: String,
     required: [true, 'User must have a password'],
     minlength: 8,
+    select: false,
   },
   passwordConfirm: {
-    type: String,
-    required: [true, 'User must have a photo'],
+    type: String || undefined,
+    required: [true, 'You must confirm the password'],
   },
 });
 
@@ -46,8 +47,16 @@ userSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, 12);
 
   // Delete passwordConfirm field
-  this.passwordConfirm = '';
+  this.passwordConfirm = undefined;
 });
+
+// verify password
+userSchema.methods.correctPassword = async function (
+  canditatePassword: string,
+  userPassword: string
+) {
+  return await bcrypt.compare(canditatePassword, userPassword);
+};
 
 const User = mongoose.model<userType>('User', userSchema);
 
