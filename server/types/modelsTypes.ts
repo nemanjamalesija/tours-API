@@ -25,8 +25,11 @@ export type userType = Document & {
   photo: string;
   password: string;
   passwordConfirm: string | undefined;
+  passwordChangedAt: Date;
   correctPassword: (
     candidatePassword: string,
     userPassword: string
   ) => Promise<boolean>;
+
+  changedPasswordAfter: (jwtTimestamp: number) => boolean;
 };

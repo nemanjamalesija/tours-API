@@ -24,12 +24,10 @@ app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
 app.all('*', (req: Request, res: Response, next: NextFunction) => {
-  res.status(404).json({
-    status: 'fail',
-    message: `Can't find ${req.originalUrl} on this server`,
-  });
+  const message = `Can't find ${req.originalUrl} on this server`;
+  const error = new AppError(message, 404);
 
-  next();
+  next(error);
 });
 
 app.use(globalErrorHandler);

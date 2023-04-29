@@ -29,20 +29,22 @@ const getAllTours = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getTour = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const currentTour = await Tour.findById(req.params.id);
+const getTour = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const currentTour = await Tour.findById(req.params.id);
 
-  if (!currentTour) {
-    const error = new AppError('There is no tour with that ID', 'fail', 404);
+    if (!currentTour) {
+      const error = new AppError('There is no tour with that ID', 404);
 
-    return next(error);
+      return next(error);
+    }
+
+    res.status(200).json({
+      status: 'sucess',
+      data: currentTour,
+    });
   }
-
-  res.status(200).json({
-    status: 'sucess',
-    data: currentTour,
-  });
-});
+);
 
 const createTour = catchAsync(async (req: Request, res: Response) => {
   const newTour = new Tour({
@@ -57,38 +59,42 @@ const createTour = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const updateTour = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+const updateTour = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
-  if (!updatedTour) {
-    const error = new AppError('No tour with that ID', 'fail', 404);
+    if (!updatedTour) {
+      const error = new AppError('No tour with that ID', 404);
 
-    return next(error);
+      return next(error);
+    }
+
+    res.status(201).json({
+      status: 'sucess',
+      data: updatedTour,
+    });
   }
+);
 
-  res.status(201).json({
-    status: 'sucess',
-    data: updatedTour,
-  });
-});
+const deleteTour = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const deletedTour = await Tour.findByIdAndDelete(req.params.id);
 
-const deleteTour = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const deletedTour = await Tour.findByIdAndDelete(req.params.id);
+    if (!deletedTour) {
+      const error = new AppError('No tour with that ID', 404);
 
-  if (!deletedTour) {
-    const error = new AppError('No tour with that ID', 'fail', 404);
+      return next(error);
+    }
 
-    return next(error);
+    res.status(500).json({
+      status: 'sucess',
+      deletedTour,
+    });
   }
-
-  res.status(500).json({
-    status: 'sucess',
-    deletedTour,
-  });
-});
+);
 
 // AGREGATION PIPELINE
 const getTourStats = catchAsync(async (req: Request, res: Response) => {

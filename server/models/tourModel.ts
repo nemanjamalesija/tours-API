@@ -112,15 +112,13 @@ toursSchema.pre('save', function (next) {
 //   next();
 // });
 
+// toursSchema.post(/^find/, function (docs, next) {
+//   next();
+// });
+
 // QUERY MIDDLEWARE
 toursSchema.pre(/^find/, function (next) {
   this.find({ secretTour: { $ne: true } });
-
-  next();
-});
-
-toursSchema.post(/^find/, function (docs, next) {
-  console.log(docs);
 
   next();
 });

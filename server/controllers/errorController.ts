@@ -39,7 +39,7 @@ const sendErrorProd = (res: Response, err: any) => {
 const handleCastErrorDB = (err: castErrorDB) => {
   const message = `Invalid ${err.path}: ${err.value}`;
 
-  return new AppError(message, 'fail', 404);
+  return new AppError(message, 404);
 };
 
 const handleDuplicateFieldErrorDB = (err: duplicateErrorDB) => {
@@ -47,14 +47,24 @@ const handleDuplicateFieldErrorDB = (err: duplicateErrorDB) => {
 
   const message = `The tour under the name ${tourName} already exists`;
 
-  return new AppError(message, 'fail', 404);
+  return new AppError(message, 404);
 };
 
 const handleValidatorErrorDB = (err: validatorErrorDB) => {
   const errors = Object.values(err.errors).map((el) => el.message);
 
   const message = `Invalid input data, ${errors.join('. ')}`;
-  return new AppError(message, 'fail', 404);
+  return new AppError(message, 404);
+};
+
+const handleJWTError = () => {
+  const message = 'Invalid Token! Please log in again';
+  return new AppError(message, 401);
+};
+
+const handleJWTExpiredError = () => {
+  const message = 'Your token has expired! Please log in again';
+  return new AppError(message, 401);
 };
 
 const globalErrorHandler = (
@@ -89,6 +99,13 @@ const globalErrorHandler = (
     // 3. Didn't specify all fields
     if (err.name === 'ValidationError')
       error = handleValidatorErrorDB(error as validatorErrorDB);
+
+    // JWT ERRORS
+    // 1. Someone manipulated JWT
+    if (err.name === 'JsonWebTokenError') error = handleJWTError();
+
+    // 2. Token expired
+    if ((err.name = 'TokenExpiredError')) error = handleJWTExpiredError();
 
     sendErrorProd(res, error);
 

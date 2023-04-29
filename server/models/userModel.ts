@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema<userType>({
     type: String || undefined,
     required: [true, 'You must confirm the password'],
   },
+
+  passwordChangedAt: {
+    type: Date,
+  },
 });
 
 // validate password (works only on CREATE and SAVE)
@@ -56,6 +60,18 @@ userSchema.methods.correctPassword = async function (
   userPassword: string
 ) {
   return await bcrypt.compare(canditatePassword, userPassword);
+};
+
+// check if the user changed the password
+userSchema.methods.changedPasswordAfter = function (jwtTimestamp: number) {
+  const changedPassword = this.get('passwordChangedAt');
+
+  if (changedPassword) {
+    const changedTimestamp = Number(changedPassword.getTime() / 1000);
+
+    // if true password was changed after the token was issued
+    return changedTimestamp > jwtTimestamp;
+  }
 };
 
 const User = mongoose.model<userType>('User', userSchema);
