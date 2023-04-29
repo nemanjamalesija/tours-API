@@ -96,9 +96,9 @@ const protect = catchAsync(
     );
 
     // 3. Check if user still exists
-    const freshUser = await User.findById(decodedTokenObj.id);
+    const currentUser = await User.findById(decodedTokenObj.id);
 
-    if (!freshUser) {
+    if (!currentUser) {
       const message = 'The user belonging to the token no longer exists';
       const error = new AppError(message, 401);
 
@@ -106,7 +106,7 @@ const protect = catchAsync(
     }
 
     // 4. Check if user changed password after the token was issued
-    else if (freshUser.changedPasswordAfter(decodedTokenObj.iat)) {
+    else if (currentUser.changedPasswordAfter(decodedTokenObj.iat)) {
       const message = 'User recently changed password! Please log in again.';
       const error = new AppError(message, 401);
 
