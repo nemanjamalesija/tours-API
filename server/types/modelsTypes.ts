@@ -23,6 +23,7 @@ export type userType = Document & {
   name: string;
   email: string;
   photo: string;
+  role: string;
   password: string;
   passwordConfirm: string | undefined;
   passwordChangedAt: Date;

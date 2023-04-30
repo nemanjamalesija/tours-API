@@ -13,12 +13,13 @@ const signToken = (id: string) => {
 
 const signUp = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { name, email, password, passwordConfirm, passwordChangedAt } =
+    const { name, email, password, passwordConfirm, passwordChangedAt, role } =
       req.body;
 
     const newUser = await User.create({
       name,
       email,
+      role,
       password,
       passwordConfirm,
       passwordChangedAt,
@@ -114,8 +115,24 @@ const protect = catchAsync(
     }
 
     // If all okay, grant access to protected route
-    else next();
+    else {
+      req.body = { ...req.body, currentUser };
+      return next();
+    }
   }
 );
 
-export default { signUp, login, protect };
+const restritTo = (...roles: string[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const userWithPrivilege = roles.includes(req.body.currentUser.role);
+
+    if (!userWithPrivilege) {
+      const message = 'You do not have permission to perfom this operation';
+      const error = new AppError(message, 403);
+
+      return next(error);
+    } else next();
+  };
+};
+
+export default { signUp, login, protect, restritTo };

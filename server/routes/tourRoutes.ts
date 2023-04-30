@@ -9,7 +9,7 @@ router
   .get(authController.protect, tourController.getAllTours)
   .post(tourController.createTour);
 router
-  .route('/top-5-tours')
+  .route('/top-5-cheap')
   .get(tourController.aliasTopTours, tourController.getAllTours);
 
 router.route('/tour-stats').get(tourController.getTourStats);
@@ -19,6 +19,10 @@ router
   .route('/:id')
   .get(tourController.getTour)
   .patch(tourController.updateTour)
-  .delete(tourController.deleteTour);
+  .delete(
+    authController.protect,
+    authController.restritTo('admin', 'lead-guide'),
+    tourController.deleteTour
+  );
 
 export default router;
