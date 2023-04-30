@@ -27,10 +27,13 @@ export type userType = Document & {
   password: string;
   passwordConfirm: string | undefined;
   passwordChangedAt: Date;
+  passwordResetToken: string;
+  passwordResetExpires: Date;
   correctPassword: (
     candidatePassword: string,
     userPassword: string
   ) => Promise<boolean>;
 
   changedPasswordAfter: (jwtTimestamp: number) => boolean;
+  createPasswordResetToken: () => string;
 };

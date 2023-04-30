@@ -108,8 +108,10 @@ const protect = catchAsync(
 
     // 4. Check if user changed password after the token was issued
     else if (currentUser.changedPasswordAfter(decodedTokenObj.iat)) {
-      const message = 'User recently changed password! Please log in again.';
-      const error = new AppError(message, 401);
+      const error = new AppError(
+        'User recently changed password! Please log in again',
+        401
+      );
 
       return next(error);
     }
@@ -136,4 +138,43 @@ const restritTo = (...roles: ['admin', 'lead-guide']) => {
   };
 };
 
-export default { signUp, login, protect, restritTo };
+const forgotPassword = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // 1. get user based on posted email
+    const currentUser = await User.findOne({ email: req.body.email });
+    console.log('aaaaaaaaaaaa');
+
+    if (!currentUser) {
+      const error = new AppError(
+        'User with this email adress not found. Please try again',
+        404
+      );
+
+      return next(error);
+    }
+
+    // 2. generate the random token
+    const resetToken = currentUser.createPasswordResetToken();
+    await currentUser.save({ validateBeforeSave: false });
+
+    // 3. Send successful response
+    res.status(200).json({
+      status: 'success',
+      message: 'Password reset token sent to email!',
+      resetToken,
+    });
+  }
+
+  // 3. send it back as an email
+);
+
+// const resetPassword = (req: Request, res: Response, next: NextFunction) => {};
+
+export default {
+  signUp,
+  login,
+  protect,
+  restritTo,
+  forgotPassword,
+  // resetPassword,
+};

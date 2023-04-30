@@ -2,6 +2,7 @@ import { userType } from '../types/modelsTypes.ts';
 import mongoose from 'mongoose';
 import validator from '../helpers/validator.ts';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 
 const userSchema = new mongoose.Schema<userType>({
   name: {
@@ -37,6 +38,14 @@ const userSchema = new mongoose.Schema<userType>({
   },
 
   passwordChangedAt: {
+    type: Date,
+  },
+
+  passwordResetToken: {
+    type: String,
+  },
+
+  passwordResetExpires: {
     type: Date,
   },
 });
@@ -78,6 +87,22 @@ userSchema.methods.changedPasswordAfter = function (jwtTimestamp: number) {
     // if true password was changed after the token was issued
     return changedTimestamp > jwtTimestamp;
   }
+};
+
+// generate reset token
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+  console.log({ resetToken }, this.passwordResetToken);
+
+  return resetToken;
 };
 
 const User = mongoose.model<userType>('User', userSchema);
