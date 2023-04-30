@@ -22,7 +22,7 @@ class APIFeatures {
     let queryStr = JSON.stringify(queryObject);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
 
-    this.query.find(JSON.parse(queryStr));
+    this.query = this.query.find(JSON.parse(queryStr));
 
     return this;
   }
@@ -31,9 +31,10 @@ class APIFeatures {
   sort() {
     if (this.queryString.sort) {
       const sortBy = this.queryString.sort.toString().split(',').join(' ');
-
       this.query = this.query.sort(sortBy);
-    } else this.query = this.query.sort('price');
+    } else {
+      this.query = this.query.sort('-createdAt');
+    }
 
     return this;
   }
@@ -55,13 +56,6 @@ class APIFeatures {
     const skip = (page - 1) * limit;
 
     this.query = this.query.skip(skip).limit(limit);
-
-    if (this.queryString.page) {
-      const countDocumentsAsync = async () => await Tour.countDocuments();
-      countDocumentsAsync().then((numTours) => {
-        if (skip >= numTours) throw new Error('This page does not exist!');
-      });
-    }
 
     return this;
   }
