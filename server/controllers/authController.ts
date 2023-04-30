@@ -122,7 +122,7 @@ const protect = catchAsync(
   }
 );
 
-const restritTo = (...roles: string[]) => {
+const restritTo = (...roles: ['admin', 'tour-guide']) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const userWithPrivilege = roles.includes(req.body.currentUser.role);
 
