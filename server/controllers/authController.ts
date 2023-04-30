@@ -131,7 +131,8 @@ const restritTo = (...roles: ['admin', 'lead-guide']) => {
       const error = new AppError(message, 403);
 
       return next(error);
-    } else next();
+    }
+    return next();
   };
 };
 
