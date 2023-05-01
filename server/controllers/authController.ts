@@ -150,7 +150,6 @@ const forgotPassword = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     // 1. get user based on posted email
     const currentUser = await User.findOne({ email: req.body.email });
-    console.log('aaaaaaaaaaaa');
 
     if (!currentUser) {
       const error = new AppError(
@@ -217,8 +216,6 @@ const resetPassword = catchAsync(
       return next(error);
     }
 
-    console.log(req.body.passwordConfirm);
-
     currentUser.password = req.body.password;
     currentUser.passwordConfirm = req.body.passwordConfirm;
     currentUser.passwordResetToken = undefined;
@@ -238,6 +235,69 @@ const resetPassword = catchAsync(
   }
 );
 
+const updatePassword = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // 1. Get user from the collection
+
+    const { password, passwordConfirm } = req.body;
+    const newPassword: string | undefined = req.body.newPassword;
+
+    if (!newPassword) {
+      const error = new AppError('Please provide the new password', 401);
+
+      return next(error);
+    }
+
+    if (newPassword.length < 6) {
+      const error = new AppError(
+        'The length of the password must be minimum 8 letters',
+        401
+      );
+
+      return next(error);
+    }
+
+    const currentUser = await User.findById(req.body.currentUser._id).select(
+      '+password'
+    ); //  current user is set from the protect middleware
+
+    // 2. Check if user exists and if entered password is correct
+    if (
+      !currentUser ||
+      !(await currentUser.correctPassword(password, currentUser.password))
+    ) {
+      const error = new AppError(
+        'Please provide correct email and password',
+        404
+      );
+
+      return next(error);
+    }
+
+    if (!password !== !passwordConfirm) {
+      const error = new AppError(
+        'Your new password and confirmed password don"t match',
+        401
+      );
+
+      return next(error);
+    }
+
+    // 3. If pw correct, update password
+    currentUser.password = newPassword;
+    currentUser.passwordConfirm = passwordConfirm;
+    await currentUser.save();
+
+    // 4. Log user in, send jwt
+    const token = signToken(currentUser._id);
+
+    res.status(200).json({
+      status: 'sucess',
+      token,
+    });
+  }
+);
+
 export default {
   signUp,
   login,
@@ -245,4 +305,5 @@ export default {
   restritTo,
   forgotPassword,
   resetPassword,
+  updatePassword,
 };
