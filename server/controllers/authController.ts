@@ -6,10 +6,23 @@ import User from '../models/userModel.ts';
 import AppError from '../helpers/appError.ts';
 import sendResetEmail from '../helpers/setResetEmail.ts';
 import crypto from 'crypto';
+import { userType } from '../types/modelsTypes.ts';
 
 const signToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_SECRET_STRING as string, {
     expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+};
+
+const createSendToken = (res: Response, statusCode: number, user: userType) => {
+  const token = signToken(user._id);
+
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user: user,
+    },
   });
 };
 
@@ -28,17 +41,8 @@ const signUp = catchAsync(
       passwordChangedAt,
     });
 
-    // 2. Sign token
-    const token = signToken(newUser._id);
-
-    // 3. Send success response
-    res.status(201).json({
-      status: 'success',
-      token,
-      data: {
-        user: newUser,
-      },
-    });
+    // 2. Sign token an send success response
+    createSendToken(res, 201, newUser);
   }
 );
 
@@ -66,14 +70,7 @@ const login = catchAsync(
     }
 
     // 3. If everything ok, send token to client
-    else {
-      const token = signToken(currentUser._id);
-
-      res.status(200).json({
-        status: 'sucess',
-        token,
-      });
-    }
+    else createSendToken(res, 200, currentUser);
   }
 );
 
@@ -226,12 +223,7 @@ const resetPassword = catchAsync(
     // 3. Update changedPasswordAt property for the user (add middleware in the model)
 
     // 4. Log in the user
-    const token = signToken(currentUser._id);
-
-    res.status(200).json({
-      status: 'sucess',
-      token,
-    });
+    createSendToken(res, 200, currentUser);
   }
 );
 
@@ -289,12 +281,7 @@ const updatePassword = catchAsync(
     await currentUser.save();
 
     // 4. Log user in, send jwt
-    const token = signToken(currentUser._id);
-
-    res.status(200).json({
-      status: 'sucess',
-      token,
-    });
+    createSendToken(res, 200, currentUser);
   }
 );
 
