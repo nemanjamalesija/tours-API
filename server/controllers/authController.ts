@@ -223,10 +223,9 @@ const resetPassword = catchAsync(
 
     await currentUser.save();
 
-    // 3. Update changedPasswordAt property for the user
+    // 3. Update changedPasswordAt property for the user (add middleware in the model)
 
     // 4. Log in the user
-
     const token = signToken(currentUser._id);
 
     res.status(200).json({

@@ -50,9 +50,9 @@ const userSchema = new mongoose.Schema<userType>({
   },
 });
 
-// MIDDLEWARE
+///////////////// MIDDLEWARE
 
-// validate password (works only on CREATE and SAVE)
+// VALIDATE PASSWORD (works only on CREATE and SAVE)
 userSchema.path('passwordConfirm').validate(function (value: string) {
   if (value !== this.get('password')) {
     throw new Error('Passwords are not the same!');
@@ -60,6 +60,7 @@ userSchema.path('passwordConfirm').validate(function (value: string) {
   return true;
 });
 
+// HASH PASSWORD
 userSchema.pre('save', async function (next) {
   // Only run if password was actually modified
   if (!this.isModified('password')) return next();
@@ -71,6 +72,7 @@ userSchema.pre('save', async function (next) {
   this.passwordConfirm = undefined;
 });
 
+// UPDATE PASSWORD-CHANGED-AT
 userSchema.pre('save', function (next) {
   if (!this.isModified('password') || this.isNew) return next();
 
@@ -80,9 +82,9 @@ userSchema.pre('save', function (next) {
   next();
 });
 
-//// METHODS
+/////////////////  METHODS
 
-// verify password
+// PASS VERIFICATION
 userSchema.methods.correctPassword = async function (
   canditatePassword: string,
   userPassword: string
@@ -90,7 +92,7 @@ userSchema.methods.correctPassword = async function (
   return await bcrypt.compare(canditatePassword, userPassword);
 };
 
-// check if the user changed the password
+// CHECK IF USER CHANGED PASSWORD
 userSchema.methods.changedPasswordAfter = function (jwtTimestamp: number) {
   const changedPassword = this.get('passwordChangedAt');
 
@@ -102,7 +104,7 @@ userSchema.methods.changedPasswordAfter = function (jwtTimestamp: number) {
   }
 };
 
-// generate reset token
+// GENERATE RESET TOKEN
 userSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString('hex');
 
