@@ -5,6 +5,7 @@ import catchAsync from '../helpers/catchAsync.ts';
 import User from '../models/userModel.ts';
 import AppError from '../helpers/appError.ts';
 import sendResetEmail from '../helpers/setResetEmail.ts';
+import crypto from 'crypto';
 
 const signToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_SECRET_STRING as string, {
@@ -50,9 +51,12 @@ const login = catchAsync(
     }
 
     // 2. Check if the user exists && password is correct
-    const user = await User.findOne({ email }).select('+password');
+    const currentUser = await User.findOne({ email }).select('+password');
 
-    if (!user || !(await user.correctPassword(password, user.password))) {
+    if (
+      !currentUser ||
+      !(await currentUser.correctPassword(password, currentUser.password))
+    ) {
       const error = new AppError('Incorrect email or password', 401);
 
       next(error);
@@ -60,7 +64,7 @@ const login = catchAsync(
 
     // 3. If everything ok, send token to client
     else {
-      const token = signToken(user._id);
+      const token = signToken(currentUser._id);
 
       res.status(200).json({
         status: 'sucess',
@@ -159,10 +163,8 @@ const forgotPassword = catchAsync(
     await currentUser.save({ validateBeforeSave: false });
 
     // 3. send it back as an email
-
     //prettier-ignore
-    const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword${resetToken}`;
-
+    const resetURL = `${req.protocol}://${req.get("host")}/api/v1/users/resetPassword/${resetToken}`;
     const message = `Forgot your password? 
                      Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.
                      \n If you didn't forget your password, please ignore this email.`;
@@ -193,7 +195,46 @@ const forgotPassword = catchAsync(
   }
 );
 
-const resetPassword = (req: Request, res: Response, next: NextFunction) => {};
+const resetPassword = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // 1. Get user based on the token
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(req.params.token)
+      .digest('hex');
+
+    const currentUser = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+
+    // 2. If token has not expired, and there is an user, set new password
+    if (!currentUser) {
+      const error = new AppError('Token is invalid or has expired!', 400);
+      return next(error);
+    }
+
+    console.log(req.body.passwordConfirm);
+
+    currentUser.password = req.body.password;
+    currentUser.passwordConfirm = req.body.passwordConfirm;
+    currentUser.passwordResetToken = undefined;
+    currentUser.passwordResetExpires = undefined;
+
+    await currentUser.save();
+
+    // 3. Update changedPasswordAt property for the user
+
+    // 4. Log in the user
+
+    const token = signToken(currentUser._id);
+
+    res.status(200).json({
+      status: 'sucess',
+      token,
+    });
+  }
+);
 
 export default {
   signUp,

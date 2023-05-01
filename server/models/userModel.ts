@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema<userType>({
   },
 
   passwordChangedAt: {
-    type: Date,
+    type: Date || undefined,
   },
 
   passwordResetToken: {
@@ -49,6 +49,8 @@ const userSchema = new mongoose.Schema<userType>({
     type: Date,
   },
 });
+
+// MIDDLEWARE
 
 // validate password (works only on CREATE and SAVE)
 userSchema.path('passwordConfirm').validate(function (value: string) {
@@ -68,6 +70,17 @@ userSchema.pre('save', async function (next) {
   // Delete passwordConfirm field
   this.passwordConfirm = undefined;
 });
+
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+
+  const newDate = Date.now() - 1000;
+  this.passwordChangedAt = new Date(newDate);
+
+  next();
+});
+
+//// METHODS
 
 // verify password
 userSchema.methods.correctPassword = async function (
