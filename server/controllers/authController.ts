@@ -18,6 +18,7 @@ const signUp = catchAsync(
     const { name, email, password, passwordConfirm, passwordChangedAt, role } =
       req.body;
 
+    // 1. Create new user
     const newUser = await User.create({
       name,
       email,
@@ -27,8 +28,10 @@ const signUp = catchAsync(
       passwordChangedAt,
     });
 
+    // 2. Sign token
     const token = signToken(newUser._id);
 
+    // 3. Send success response
     res.status(201).json({
       status: 'success',
       token,

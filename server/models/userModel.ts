@@ -50,7 +50,7 @@ const userSchema = new mongoose.Schema<userType>({
   },
 });
 
-///////////////// MIDDLEWARE
+//////////////////////////////// VALIDATORS
 
 // VALIDATE PASSWORD (works only on CREATE and SAVE)
 userSchema.path('passwordConfirm').validate(function (value: string) {
@@ -59,6 +59,8 @@ userSchema.path('passwordConfirm').validate(function (value: string) {
   }
   return true;
 });
+
+//////////////////////////////// MIDDLEWARE
 
 // HASH PASSWORD
 userSchema.pre('save', async function (next) {
@@ -82,7 +84,7 @@ userSchema.pre('save', function (next) {
   next();
 });
 
-/////////////////  METHODS
+////////////////////////////////  METHODS
 
 // PASS VERIFICATION
 userSchema.methods.correctPassword = async function (
