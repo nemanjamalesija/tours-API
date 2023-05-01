@@ -27,8 +27,8 @@ export type userType = Document & {
   password: string;
   passwordConfirm: string | undefined;
   passwordChangedAt: Date;
-  passwordResetToken: string;
-  passwordResetExpires: Date;
+  passwordResetToken: string | undefined;
+  passwordResetExpires: Date | undefined;
   correctPassword: (
     candidatePassword: string,
     userPassword: string

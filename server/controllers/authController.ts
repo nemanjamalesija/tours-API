@@ -4,6 +4,7 @@ import { NextFunction, Request, Response } from 'express';
 import catchAsync from '../helpers/catchAsync.ts';
 import User from '../models/userModel.ts';
 import AppError from '../helpers/appError.ts';
+import sendResetEmail from '../helpers/setResetEmail.ts';
 
 const signToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_SECRET_STRING as string, {
@@ -157,18 +158,42 @@ const forgotPassword = catchAsync(
     const resetToken = currentUser.createPasswordResetToken();
     await currentUser.save({ validateBeforeSave: false });
 
-    // 3. Send successful response
-    res.status(200).json({
-      status: 'success',
-      message: 'Password reset token sent to email!',
-      resetToken,
-    });
-  }
+    // 3. send it back as an email
 
-  // 3. send it back as an email
+    //prettier-ignore
+    const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword${resetToken}`;
+
+    const message = `Forgot your password? 
+                     Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.
+                     \n If you didn't forget your password, please ignore this email.`;
+
+    try {
+      await sendResetEmail({
+        email: currentUser.email,
+        subject: 'Your password reset token (valid for 10 min)',
+        message,
+      });
+
+      res.status(200).json({
+        status: 'sucess',
+        message: 'Token sent to the email!',
+      });
+    } catch (err) {
+      currentUser.passwordResetToken = undefined;
+      currentUser.passwordResetExpires = undefined;
+      await currentUser.save({ validateBeforeSave: false });
+
+      const error = new AppError(
+        'There was an error sending the email. Please try again later',
+        500
+      );
+
+      return next(error);
+    }
+  }
 );
 
-// const resetPassword = (req: Request, res: Response, next: NextFunction) => {};
+const resetPassword = (req: Request, res: Response, next: NextFunction) => {};
 
 export default {
   signUp,
@@ -176,5 +201,5 @@ export default {
   protect,
   restritTo,
   forgotPassword,
-  // resetPassword,
+  resetPassword,
 };
