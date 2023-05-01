@@ -258,19 +258,7 @@ const updatePassword = catchAsync(
       !currentUser ||
       !(await currentUser.correctPassword(password, currentUser.password))
     ) {
-      const error = new AppError(
-        'Please provide correct email and password',
-        404
-      );
-
-      return next(error);
-    }
-
-    if (!password !== !passwordConfirm) {
-      const error = new AppError(
-        'Your new password and confirmed password don"t match',
-        401
-      );
+      const error = new AppError('Your current password is wrong', 401);
 
       return next(error);
     }
