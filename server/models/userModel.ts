@@ -48,6 +48,12 @@ const userSchema = new mongoose.Schema<userType>({
   passwordResetExpires: {
     type: Date,
   },
+
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 //////////////////////////////// VALIDATORS
@@ -81,6 +87,14 @@ userSchema.pre('save', function (next) {
   const newDate = Date.now() - 1000;
   this.passwordChangedAt = new Date(newDate);
 
+  next();
+});
+
+////////////////////////////////
+
+userSchema.pre(/^find/, function (next) {
+  // this points to the current query
+  this.find({ active: { $ne: false } });
   next();
 });
 
