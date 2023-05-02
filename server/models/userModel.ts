@@ -90,7 +90,7 @@ userSchema.pre('save', function (next) {
   next();
 });
 
-////////////////////////////////
+//////////////////////////////// FILTER OUT INACTIVE USERS
 
 userSchema.pre(/^find/, function (next) {
   // this points to the current query
