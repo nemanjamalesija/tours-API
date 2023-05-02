@@ -32,6 +32,7 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
     "@types/cors": "^2.8.13",
+    "@types/dompurify": "^3.0.2",
     "@types/express": "^4.17.17",
     "@types/jsonwebtoken": "^9.0.1",
     "@types/morgan": "^1.9.4",

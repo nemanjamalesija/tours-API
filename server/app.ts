@@ -1,20 +1,17 @@
 import express, { NextFunction, Request, Response, Errback } from 'express';
-import bodyParser from 'body-parser';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import tourRouter from './routes/tourRoutes.ts';
 import userRouter from './routes/userRoutes.ts';
 import AppError from './helpers/appError.ts';
-import { HttpError } from './types/errorType.ts';
 import globalErrorHandler from './controllers/errorController.ts';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
+// @ts-ignore: types not avaliable
 import xss from 'xss-clean';
-import { mongo } from 'mongoose';
 
 const __fileName = fileURLToPath(import.meta.url);
 const __dirName = path.dirname(__fileName);
