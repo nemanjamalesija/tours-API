@@ -92,7 +92,7 @@ const deleteTour = catchAsync(
 
     res.status(500).json({
       status: 'sucess',
-      deletedTour,
+      data: null,
     });
   }
 );
