@@ -1,5 +1,17 @@
 import { Document } from 'mongoose';
 
+type geoLocationType = {
+  type: {
+    type: string;
+    default: 'Point';
+    enum: ['Point'];
+  };
+  coordinates: [number, number];
+  address: string;
+  description: string;
+  day?: Number;
+};
+
 export type TourType = Document & {
   name: string;
   duration: number;
@@ -17,6 +29,9 @@ export type TourType = Document & {
   startDates?: Date[];
   slug?: string;
   secretTour?: boolean;
+  startLocation: geoLocationType;
+  locations: geoLocationType[];
+  guides: any[];
 };
 
 export type userType = Document & {

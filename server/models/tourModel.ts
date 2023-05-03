@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
 import { TourType } from '../types/modelsTypes.ts';
 import slugify from '../helpers/slugify.ts';
+import User from './userModel.ts';
 
-const toursSchema = new mongoose.Schema(
+const toursSchema = new mongoose.Schema<TourType>(
   {
     name: {
       type: String,
@@ -85,8 +86,34 @@ const toursSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    startLocation: {
+      // geoJSON
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      adress: String,
+      description: String,
+    },
+    locations: [
+      {
+        // geoJSON
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        adress: String,
+        description: String,
+      },
+    ],
+    guides: {
+      type: [String],
+    },
   },
-
   // virtual properties
   {
     toJSON: { virtuals: true },
@@ -100,21 +127,6 @@ toursSchema.pre('save', function (next) {
 
   next();
 });
-
-// toursSchema.pre('save', function (next) {
-//   console.log('Will save document now...');
-//   next();
-// });
-
-// toursSchema.post('save', function (doc, next) {
-//   console.log(doc);
-
-//   next();
-// });
-
-// toursSchema.post(/^find/, function (docs, next) {
-//   next();
-// });
 
 // QUERY MIDDLEWARE
 toursSchema.pre(/^find/, function (next) {

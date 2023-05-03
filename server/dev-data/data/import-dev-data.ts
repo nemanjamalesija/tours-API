@@ -23,14 +23,16 @@ if (!db)
 
 mongoose
   .connect(db)
-  .then(() => console.log('Database connection is successful in the import script'))
+  .then(() =>
+    console.log('Database connection is successful in the import script')
+  )
   .catch((error) => {
     'There was an error when connecting to the database in the import script';
     console.log(error);
   });
 
 // READ JSON FILE
-const tours = JSON.parse(fs.readFileSync(`${__dirName}/tours-simple.json`, 'utf-8'));
+const tours = JSON.parse(fs.readFileSync(`${__dirName}/tours.json`, 'utf-8'));
 
 // IMPORT DATA INTO DATABASE
 const importData = async () => {
