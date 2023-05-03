@@ -144,6 +144,14 @@ toursSchema.pre('aggregate', function (next) {
   next();
 });
 
+toursSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v',
+  });
+  next();
+});
+
 // VIRTUAL PROPERTIES
 toursSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;

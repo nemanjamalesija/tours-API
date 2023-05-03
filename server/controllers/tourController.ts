@@ -32,7 +32,7 @@ const getAllTours = catchAsync(async (req: Request, res: Response) => {
 
 const getTour = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const currentTour = await Tour.findById(req.params.id).populate('guides');
+    const currentTour = await Tour.findById(req.params.id);
 
     if (!currentTour) {
       const error = new AppError('There is no tour with that ID', 404);
