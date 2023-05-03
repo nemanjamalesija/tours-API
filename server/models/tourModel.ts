@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import { TourType } from '../types/modelsTypes.ts';
 import slugify from '../helpers/slugify.ts';
-import User from './userModel.ts';
 
 const toursSchema = new mongoose.Schema<TourType>(
   {
