@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import { TourType } from '../types/modelsTypes.ts';
 import slugify from '../helpers/slugify.ts';
 
@@ -109,9 +109,12 @@ const toursSchema = new mongoose.Schema<TourType>(
         description: String,
       },
     ],
-    guides: {
-      type: [String],
-    },
+    guides: [
+      {
+        type: Types.ObjectId,
+        ref: 'User',
+      },
+    ],
   },
   // virtual properties
   {
