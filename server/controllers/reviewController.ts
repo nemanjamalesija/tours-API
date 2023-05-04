@@ -36,6 +36,9 @@ const getSingleReview = catchAsync(
 
 const createReview = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.body.tour) req.body.tour = req.params.tourId;
+    if (!req.body.currentUser) req.body.currentUser = req.body.currentUser.id;
+
     const newReview = await Review.create(req.body);
 
     res.status(201).json({ status: 'sucess', data: { newReview } });

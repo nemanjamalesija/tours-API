@@ -1,8 +1,11 @@
 import express from 'express';
 import tourController from '../controllers/tourController.ts';
 import authController from '../controllers/authController.ts';
+import reviewRouter from '../routes/reviewRoutes.ts';
 
 const router = express.Router();
+
+router.use('/:tourId/review', reviewRouter);
 
 router
   .route('/')
