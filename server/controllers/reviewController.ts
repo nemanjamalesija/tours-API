@@ -5,7 +5,7 @@ import AppError from '../helpers/appError.ts';
 
 const getAllReviews = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const reviews = await Review.find();
+    const reviews = await Review.find().select('name');
 
     res.status(200).json({
       status: 'sucess',
@@ -36,15 +36,7 @@ const getSingleReview = catchAsync(
 
 const createReview = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { review, rating, createdAt, tour, user } = req.body;
-
-    const newReview = await Review.create({
-      review,
-      rating,
-      createdAt,
-      tour,
-      user,
-    });
+    const newReview = await Review.create(req.body);
 
     res.status(201).json({ status: 'sucess', data: { newReview } });
   }

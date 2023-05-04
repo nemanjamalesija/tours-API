@@ -48,9 +48,7 @@ const getTour = catchAsync(
 );
 
 const createTour = catchAsync(async (req: Request, res: Response) => {
-  const newTour = new Tour({
-    ...req.body,
-  });
+  const newTour = new Tour(req.body);
 
   await newTour.save();
 
