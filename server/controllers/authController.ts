@@ -6,7 +6,7 @@ import User from '../models/userModel.ts';
 import AppError from '../helpers/appError.ts';
 import sendResetEmail from '../helpers/setResetEmail.ts';
 import crypto from 'crypto';
-import { userType } from '../types/modelsTypes.ts';
+import { userType } from '../types/userTypes.ts';
 
 const signToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_SECRET_STRING as string, {

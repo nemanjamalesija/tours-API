@@ -1,5 +1,5 @@
 import mongoose, { Types } from 'mongoose';
-import { TourType } from '../types/modelsTypes.ts';
+import { TourType } from '../types/tourTypes.ts';
 import slugify from '../helpers/slugify.ts';
 
 const toursSchema = new mongoose.Schema<TourType>(
@@ -137,18 +137,18 @@ toursSchema.pre(/^find/, function (next) {
   next();
 });
 
-// AGGREGATION MIDDLEWARE
-toursSchema.pre('aggregate', function (next) {
-  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-
-  next();
-});
-
 toursSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'guides',
     select: '-__v',
   });
+  next();
+});
+
+// AGGREGATION MIDDLEWARE
+toursSchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+
   next();
 });
 

@@ -1,4 +1,9 @@
 import mongoose from 'mongoose';
-import { TourType } from './modelsTypes.ts';
+import { TourType } from './tourTypes.ts';
 
-export type APIFeaturesQueryType = mongoose.Query<TourType[], TourType, {}, TourType>;
+export type APIFeaturesQueryType = mongoose.Query<
+  TourType[],
+  TourType,
+  {},
+  TourType
+>;

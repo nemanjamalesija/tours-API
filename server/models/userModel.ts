@@ -1,8 +1,8 @@
-import { userType } from '../types/modelsTypes.ts';
 import mongoose from 'mongoose';
 import validator from '../helpers/validator.ts';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+import { userType } from '../types/userTypes.ts';
 
 const userSchema = new mongoose.Schema<userType>({
   name: {
