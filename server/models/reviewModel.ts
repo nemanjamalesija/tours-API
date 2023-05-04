@@ -22,22 +22,33 @@ const reviewSchema = new mongoose.Schema<reviewType>(
 
     tour: {
       type: Types.ObjectId,
-      ref: 'tour',
+      ref: 'Tour',
       required: [true, 'Review must belong to a tour'],
     },
 
-    user: [
-      {
-        type: Types.ObjectId,
-        ref: 'user',
-        required: [true, 'Review must belong to an user'],
-      },
-    ],
+    user: {
+      type: Types.ObjectId,
+      ref: 'User',
+      required: [true, 'Review must belong to an user'],
+    },
   },
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
 );
+
+reviewSchema.pre('save', function (next) {
+  this.populate({ path: 'tour' });
+  this.populate({ path: 'user' });
+  next();
+});
+
+reviewSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'tour',
+  }).populate({ path: 'user' });
+  next();
+});
 
 export const Review = mongoose.model<reviewType>('Review', reviewSchema);
