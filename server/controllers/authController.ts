@@ -146,7 +146,7 @@ const protect = catchAsync(
   }
 );
 
-const restritTo = (...roles: ['admin', 'lead-guide']) => {
+const restrictTo = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const userWithPrivilege = roles.includes(req.body.currentUser.role);
 
@@ -294,7 +294,7 @@ export default {
   signUp,
   login,
   protect,
-  restritTo,
+  restrictTo,
   forgotPassword,
   resetPassword,
   updatePassword,
