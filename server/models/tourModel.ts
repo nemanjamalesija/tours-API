@@ -157,6 +157,13 @@ toursSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
 
+// virtual populate
+toursSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id',
+});
+
 // CUSTOM VALIDATORS
 toursSchema.path('priceDiscount').validate(function (value: number) {
   if (value >= this.get('price')) {
