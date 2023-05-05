@@ -6,7 +6,6 @@ const router = express.Router();
 
 router.post('/signup', authController.signUp);
 router.post('/login', authController.login);
-
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:token', authController.resetPassword);
 router.patch(
@@ -15,17 +14,15 @@ router.patch(
   authController.updatePassword
 );
 
-router.get(
-  '/getMe',
-  authController.protect,
-  userController.getMe,
-  userController.getUser
-);
-router.patch('/updateMe', authController.protect, userController.updateMe);
-router.delete('/deleteMe', authController.protect, userController.deleteMe);
+router.use(authController.protect); // protect all routes below this line
+
+router.get('/me', userController.getMe);
+router.patch('/updateMyPassword', authController.updatePassword);
+router.delete('/deleteMe', userController.deleteMe);
+
+router.use(authController.restrictTo('admin')); // restrict to admin acess below this line
 
 router.route('/').get(userController.getAllUsers);
-
 router
   .route('/:id')
   .get(userController.getUser)
