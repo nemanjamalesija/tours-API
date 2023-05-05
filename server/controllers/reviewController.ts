@@ -32,30 +32,7 @@ const createReview = catchAsync(
   }
 );
 
-const updateReview = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const updatedReview = await Review.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
-
-    if (!updatedReview) {
-      const error = new AppError('There is no review under that ID', 404);
-
-      return next(error);
-    }
-
-    res.status(201).json({
-      status: 'sucess',
-      data: { updatedReview },
-    });
-  }
-);
-
+const updateReview = handlerFactory.updateOne(Review);
 const getSingleReview = handlerFactory.getOne(Review, '');
 const deleteReview = handlerFactory.deleteOne(Review);
 
