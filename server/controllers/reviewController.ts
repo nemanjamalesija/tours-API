@@ -22,7 +22,7 @@ const getAllReviews = catchAsync(
 
 const setTourUserIds = (req: Request, res: Response, next: NextFunction) => {
   if (!req.body.tour) req.body.tour = req.params.tourId;
-  if (!req.body.currentUser) req.body.currentUser = req.body.currentUser.id;
+  if (!req.body.user) req.body.user = req.body.currentUser.id;
 
   next();
 };
