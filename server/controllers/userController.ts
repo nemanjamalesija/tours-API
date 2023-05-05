@@ -13,6 +13,12 @@ const filterObj = (obj: any, ...allowedFields: string[]) => {
   return newObj;
 };
 
+const getMe = (req: Request, res: Response, next: NextFunction) => {
+  req.params.id = req.body.currentUser.id;
+
+  next();
+};
+
 const updateMe = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     // 1. Create error if user posts password data
@@ -75,4 +81,5 @@ export default {
   deleteUser,
   updateMe,
   deleteMe,
+  getMe,
 };
