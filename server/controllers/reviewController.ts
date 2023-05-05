@@ -29,7 +29,7 @@ const setTourUserIds = (req: Request, res: Response, next: NextFunction) => {
 
 const createReview = handlerFactory.createOne(Review);
 const updateReview = handlerFactory.updateOne(Review);
-const getSingleReview = handlerFactory.getOne(Review, '');
+const getSingleReview = handlerFactory.getOne(Review, ''); // empy string to ignore .populate()
 const deleteReview = handlerFactory.deleteOne(Review);
 
 export default {
