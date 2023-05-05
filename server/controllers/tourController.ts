@@ -12,31 +12,10 @@ const aliasTopTours = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
-const getAllTours = catchAsync(async (req: Request, res: Response) => {
-  // EXECUTE QUERY
-
-  const features = new APIFeatures(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .select()
-    .paginate();
-
-  const tours = await features.query;
-
-  // SEND RESPONSE
-  res.status(200).json({
-    status: 'sucess',
-    lenghth: tours.length,
-    data: tours,
-  });
-});
-
+const getAllTours = handlerFactory.getAll(Tour);
 const getTour = handlerFactory.getOne(Tour, 'reviews');
-
 const createTour = handlerFactory.createOne(Tour);
-
 const updateTour = handlerFactory.updateOne(Tour);
-
 const deleteTour = handlerFactory.deleteOne(Tour);
 
 // AGREGATION PIPELINE

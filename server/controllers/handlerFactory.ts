@@ -2,6 +2,7 @@ import { Model, Document } from 'mongoose';
 import catchAsync from '../helpers/catchAsync.ts';
 import AppError from '../helpers/appError.ts';
 import { NextFunction, Request, Response } from 'express';
+import APIFeatures from '../helpers/APIFeatures.ts';
 
 const deleteOne = <T extends Document>(Model: Model<T>) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -70,11 +71,21 @@ const getOne = <T extends Document>(Model: Model<T>, populateField: string) =>
 
 const getAll = <T extends Document>(Model: Model<T>) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const doc = await Model.find();
+    let filter = {};
+    if (req.params.tourId) filter = { tour: req.params.tourId }; // to allow ApiFeatures on getAllReviews
 
+    const features = new APIFeatures(Model.find(filter), req.query)
+      .filter()
+      .sort()
+      .select()
+      .paginate();
+
+    const doc = await features.query;
+
+    // SEND RESPONSE
     res.status(200).json({
-      length: doc.length,
       status: 'sucess',
+      length: doc.length,
       data: { doc },
     });
   });
