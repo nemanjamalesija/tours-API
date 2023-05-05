@@ -21,17 +21,14 @@ const getAllReviews = catchAsync(
   }
 );
 
-const createReview = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    if (!req.body.tour) req.body.tour = req.params.tourId;
-    if (!req.body.currentUser) req.body.currentUser = req.body.currentUser.id;
+const setTourUserIds = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.body.tour) req.body.tour = req.params.tourId;
+  if (!req.body.currentUser) req.body.currentUser = req.body.currentUser.id;
 
-    const newReview = await Review.create(req.body);
+  next();
+};
 
-    res.status(201).json({ status: 'sucess', data: { newReview } });
-  }
-);
-
+const createReview = handlerFactory.createOne(Review);
 const updateReview = handlerFactory.updateOne(Review);
 const getSingleReview = handlerFactory.getOne(Review, '');
 const deleteReview = handlerFactory.deleteOne(Review);
@@ -42,4 +39,5 @@ export default {
   createReview,
   updateReview,
   deleteReview,
+  setTourUserIds,
 };
