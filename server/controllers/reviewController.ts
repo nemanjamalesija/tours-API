@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { Review } from '../models/reviewModel.ts';
 import catchAsync from '../helpers/catchAsync.ts';
-import AppError from '../helpers/appError.ts';
 import handlerFactory from './handlerFactory.ts';
 
 const getAllReviews = catchAsync(
