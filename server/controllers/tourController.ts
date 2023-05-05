@@ -1,8 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
-import APIFeatures from '../helpers/APIFeatures.ts';
 import Tour from '../models/tourModel.ts';
 import catchAsync from '../helpers/catchAsync.ts';
-import AppError from '../helpers/appError.ts';
 import handlerFactory from './handlerFactory.ts';
 
 // get top 5 tours middleware
