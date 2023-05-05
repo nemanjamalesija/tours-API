@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import catchAsync from '../helpers/catchAsync.ts';
 import User from '../models/userModel.ts';
 import AppError from '../helpers/appError.ts';
+import handlerFactory from './handlerFactory.ts';
 
 const filterObj = (obj: any, ...allowedFields: string[]) => {
   const newObj: { [key: string]: string } = {};
@@ -36,7 +37,7 @@ const updateMe = catchAsync(
         runValidators: true,
       }
     );
-    console.log(updatedUser);
+
     //4. Send response to the client
     res.status(200).json({
       status: 'sucess',
@@ -60,45 +61,16 @@ const deleteMe = catchAsync(
   }
 );
 
-const getAllUsers = catchAsync(async (req: Request, res: Response) => {
-  const users = await User.find();
+const getAllUsers = handlerFactory.getAll(User);
+const getUser = handlerFactory.getOne(User, '');
 
-  res.status(200).json({
-    length: users.length,
-    status: 'sucess',
-    data: { users },
-  });
-});
-
-const getUser = (req: Request, res: Response) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!',
-  });
-};
-const createUser = (req: Request, res: Response) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!',
-  });
-};
-const updateUser = (req: Request, res: Response) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!',
-  });
-};
-const deleteUser = (req: Request, res: Response) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!',
-  });
-};
+// ONLY FOR ADMINISTORS. DO NOT UPDATE PASSWORDS WITH THIS
+const updateUser = handlerFactory.updateOne(User);
+const deleteUser = handlerFactory.deleteOne(User);
 
 export default {
   getAllUsers,
   getUser,
-  createUser,
   updateUser,
   deleteUser,
   updateMe,

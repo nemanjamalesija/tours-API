@@ -3,6 +3,7 @@ import APIFeatures from '../helpers/APIFeatures.ts';
 import Tour from '../models/tourModel.ts';
 import catchAsync from '../helpers/catchAsync.ts';
 import AppError from '../helpers/appError.ts';
+import handlerFactory from './handlerFactory.ts';
 
 // get top 5 tours middleware
 const aliasTopTours = (req: Request, res: Response, next: NextFunction) => {
@@ -30,70 +31,13 @@ const getAllTours = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getTour = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const currentTour = await Tour.findById(req.params.id).populate('reviews');
+const getTour = handlerFactory.getOne(Tour, 'reviews');
 
-    if (!currentTour) {
-      const error = new AppError('There is no tour with that ID', 404);
+const createTour = handlerFactory.createOne(Tour);
 
-      return next(error);
-    }
+const updateTour = handlerFactory.updateOne(Tour);
 
-    res.status(200).json({
-      status: 'sucess',
-      data: currentTour,
-    });
-  }
-);
-
-const createTour = catchAsync(async (req: Request, res: Response) => {
-  const newTour = new Tour(req.body);
-
-  await newTour.save();
-
-  res.status(201).json({
-    status: 'sucess',
-    data: newTour,
-  });
-});
-
-const updateTour = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!updatedTour) {
-      const error = new AppError('No tour with that ID', 404);
-
-      return next(error);
-    }
-
-    res.status(201).json({
-      status: 'sucess',
-      data: updatedTour,
-    });
-  }
-);
-
-const deleteTour = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const deletedTour = await Tour.findByIdAndDelete(req.params.id);
-
-    if (!deletedTour) {
-      const error = new AppError('No tour with that ID', 404);
-
-      return next(error);
-    }
-
-    res.status(500).json({
-      status: 'sucess',
-      data: null,
-    });
-  }
-);
+const deleteTour = handlerFactory.deleteOne(Tour);
 
 // AGREGATION PIPELINE
 const getTourStats = catchAsync(async (req: Request, res: Response) => {

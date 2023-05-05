@@ -2,10 +2,14 @@ import { NextFunction, Request, Response } from 'express';
 import { Review } from '../models/reviewModel.ts';
 import catchAsync from '../helpers/catchAsync.ts';
 import AppError from '../helpers/appError.ts';
+import handlerFactory from './handlerFactory.ts';
 
 const getAllReviews = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const reviews = await Review.find().select('name');
+    let filter = {};
+    if (req.params.tourId) filter = { tour: req.params.tourId };
+
+    const reviews = await Review.find(filter).select('name');
 
     res.status(200).json({
       status: 'sucess',
@@ -13,23 +17,6 @@ const getAllReviews = catchAsync(
       data: {
         reviews,
       },
-    });
-  }
-);
-
-const getSingleReview = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const currentReview = await Review.findById(req.params.id);
-
-    if (!currentReview) {
-      const error = new AppError('There is no review under that ID', 404);
-
-      return next(error);
-    }
-
-    res.status(200).json({
-      status: 'sucess',
-      data: { currentReview },
     });
   }
 );
@@ -69,18 +56,8 @@ const updateReview = catchAsync(
   }
 );
 
-const deleteReview = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const deletedReview = await Review.findByIdAndDelete(req.params.id);
-
-    if (!deletedReview) {
-      const error = new AppError('There is no review under that ID', 404);
-
-      return next(error);
-    }
-    res.status(500).json({ status: 'sucess', data: null });
-  }
-);
+const getSingleReview = handlerFactory.getOne(Review, '');
+const deleteReview = handlerFactory.deleteOne(Review);
 
 export default {
   getAllReviews,

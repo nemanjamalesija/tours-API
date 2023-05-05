@@ -10,7 +10,7 @@ router.use('/:tourId/review', reviewRouter);
 router
   .route('/')
   .get(authController.protect, tourController.getAllTours)
-  .post(tourController.createTour);
+  .post(authController.protect, tourController.createTour);
 router
   .route('/top-5-cheap')
   .get(tourController.aliasTopTours, tourController.getAllTours);
@@ -24,7 +24,7 @@ router
   .patch(tourController.updateTour)
   .delete(
     authController.protect,
-    authController.restrictTo('admin', 'lead-guide'),
+
     tourController.deleteTour
   );
 
