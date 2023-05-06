@@ -1,5 +1,6 @@
 import mongoose, { Types } from 'mongoose';
 import { reviewType } from '../types/reviewType.ts';
+import Tour from './tourModel.ts';
 
 const reviewSchema = new mongoose.Schema<reviewType>(
   {
@@ -32,6 +33,7 @@ const reviewSchema = new mongoose.Schema<reviewType>(
       required: [true, 'Review must belong to an user'],
     },
   },
+
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
@@ -51,6 +53,33 @@ reviewSchema.pre(/^find/, function (next) {
   });
 
   next();
+});
+
+reviewSchema.statics.calcAverageRatings = async function (tourId) {
+  // this points to the model
+  const stats = await this.aggregate([
+    {
+      $match: { tour: tourId },
+    },
+
+    {
+      $group: {
+        _id: '$tour',
+        nRatings: { $sum: 1 },
+        averageRating: { $avg: '$rating' },
+      },
+    },
+  ]);
+
+  await Tour.findByIdAndUpdate(tourId, {
+    ratingsQuantity: stats[0].nRatings,
+    ratingsAverage: stats[0].averageRating,
+  });
+};
+
+reviewSchema.post('save', function () {
+  // @ts-ignore: typescript doesn't recognise the type
+  this.constructor.calcAverageRatings(this.tour); // this points to review object
 });
 
 export const Review = mongoose.model<reviewType>('Review', reviewSchema);

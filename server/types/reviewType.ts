@@ -12,4 +12,5 @@ export type reviewType = mongoose.Document & {
   createdAt: Date;
   tour: ObjectRefType;
   user: ObjectRefType;
+  calcAverageRatings(tourId: string): void;
 };
