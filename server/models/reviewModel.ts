@@ -79,7 +79,20 @@ reviewSchema.statics.calcAverageRatings = async function (tourId) {
 
 reviewSchema.post('save', function () {
   // @ts-ignore: typescript doesn't recognise the type
-  this.constructor.calcAverageRatings(this.tour); // this points to review object with pre, post...
+  this.constructor.calcAverageRatings(this.tour); // this points to review object with  post...
+});
+
+reviewSchema.pre(/^findOneAnd/, async function (next) {
+  // this keyword is query
+
+  // @ts-ignore: need to pass the document to post middleware by storing it on t
+  this.r = await this.findOne();
+  next();
+});
+
+reviewSchema.post('save', async function () {
+  // @ts-ignore: typescript doesn't recognise the type
+  await this.r.constructor.calcAverageRatings(this.r.tour);
 });
 
 export const Review = mongoose.model<reviewType>('Review', reviewSchema);
