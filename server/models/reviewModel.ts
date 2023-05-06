@@ -56,7 +56,7 @@ reviewSchema.pre(/^find/, function (next) {
 });
 
 reviewSchema.statics.calcAverageRatings = async function (tourId) {
-  // this points to the model
+  // this points to the model in static methods
   const stats = await this.aggregate([
     {
       $match: { tour: tourId },
@@ -79,7 +79,7 @@ reviewSchema.statics.calcAverageRatings = async function (tourId) {
 
 reviewSchema.post('save', function () {
   // @ts-ignore: typescript doesn't recognise the type
-  this.constructor.calcAverageRatings(this.tour); // this points to review object
+  this.constructor.calcAverageRatings(this.tour); // this points to review object with pre, post...
 });
 
 export const Review = mongoose.model<reviewType>('Review', reviewSchema);
