@@ -151,11 +151,11 @@ toursSchema.pre(/^find/, function (next) {
 });
 
 // AGGREGATION MIDDLEWARE
-toursSchema.pre('aggregate', function (next) {
-  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+// toursSchema.pre('aggregate', function (next) {
+//   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
 
-  next();
-});
+//   next();
+// });
 
 // VIRTUAL PROPERTIES
 toursSchema.virtual('durationWeeks').get(function () {
