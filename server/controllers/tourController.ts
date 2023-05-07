@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import Tour from '../models/tourModel.ts';
 import catchAsync from '../helpers/catchAsync.ts';
 import handlerFactory from './handlerFactory.ts';
+import AppError from '../helpers/appError.ts';
 
 // get top 5 tours middleware
 const aliasTopTours = (req: Request, res: Response, next: NextFunction) => {
@@ -85,6 +86,37 @@ const getMonthlyPlan = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// tours-within/:distance/center/:latlng/unit/:unit
+// /tours-within/233/center/-40,45/unit/mi
+const getToursWithin = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { latlng, distance, unit } = req.params;
+
+    const [lat, lng] = latlng.split(',');
+    const radius =
+      unit === 'mi' ? Number(distance) / 3963.2 : Number(distance) / 6378.1;
+
+    if (!lat || !lng) {
+      const error = new AppError(
+        'Please provide latitude and longitude in the format lat, lng',
+        400
+      );
+
+      return next(error);
+    }
+
+    const tours = await Tour.find({
+      startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } },
+    });
+
+    res.status(200).json({
+      status: 'sucess',
+      results: tours.length,
+      data: { data: tours },
+    });
+  }
+);
+
 export default {
   aliasTopTours,
   getAllTours,
@@ -94,4 +126,5 @@ export default {
   deleteTour,
   getTourStats,
   getMonthlyPlan,
+  getToursWithin,
 };

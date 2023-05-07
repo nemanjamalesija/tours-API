@@ -126,6 +126,7 @@ const toursSchema = new mongoose.Schema<TourType>(
 // SET INDEXES
 toursSchema.index({ price: 1, ratingsAverage: -1 });
 toursSchema.index({ slug: 1 });
+toursSchema.index({ startLocation: '2dsphere' });
 
 // DOCUMENT MIDDLEWARE
 toursSchema.pre('save', function (next) {
