@@ -83,16 +83,17 @@ reviewSchema.post('save', function () {
 });
 
 reviewSchema.pre(/^findOneAnd/, async function (next) {
-  // this keyword is query
-
-  // @ts-ignore: need to pass the document to post middleware by storing it on t
-  this.r = await this.findOne();
+  // @ts-ignore:
+  if (!this.r) {
+    // @ts-ignore:
+    this.r = await this.findOne();
+  }
   next();
 });
-
-reviewSchema.post('save', async function () {
-  // @ts-ignore: typescript doesn't recognise the type
-  await this.r.constructor.calcAverageRatings(this.r.tour);
+reviewSchema.post(/^findOneAnd/, async function () {
+  // await this.findOne(); does NOT work here, query has already executed
+  // @ts-ignore:
+  await this.constructor.calcAverageRatings(this.tour);
 });
 
 export const Review = mongoose.model<reviewType>('Review', reviewSchema);

@@ -20,13 +20,13 @@ router.route('/:id').get(reviewController.getSingleReview);
 router
   .route('/:id')
   .patch(
-    authController.restrictTo('user, admin'),
+    authController.restrictTo('user', 'admin'),
     reviewController.updateReview
   );
 router
   .route('/:id')
   .delete(
-    authController.restrictTo('user, admin'),
+    authController.restrictTo('user', 'admin'),
     reviewController.deleteReview
   );
 
