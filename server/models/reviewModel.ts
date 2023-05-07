@@ -56,44 +56,40 @@ reviewSchema.pre(/^find/, function (next) {
 });
 
 reviewSchema.statics.calcAverageRatings = async function (tourId) {
-  // this points to the model in static methods
   const stats = await this.aggregate([
     {
       $match: { tour: tourId },
     },
-
     {
       $group: {
         _id: '$tour',
-        nRatings: { $sum: 1 },
-        averageRating: { $avg: '$rating' },
+        nRating: { $sum: 1 },
+        avgRating: { $avg: '$rating' },
       },
     },
   ]);
+  // console.log(stats);
 
-  await Tour.findByIdAndUpdate(tourId, {
-    ratingsQuantity: stats[0].nRatings,
-    ratingsAverage: stats[0].averageRating,
-  });
+  if (stats.length > 0) {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: stats[0].nRating,
+      ratingsAverage: stats[0].avgRating,
+    });
+  } else {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: 0,
+      ratingsAverage: 4.5,
+    });
+  }
 };
 
 reviewSchema.post('save', function () {
-  // @ts-ignore: typescript doesn't recognise the type
+  // @ts-ignore: typescript doesn't recognise that this is current review now
   this.constructor.calcAverageRatings(this.tour); // this points to review object with  post...
 });
 
-reviewSchema.pre(/^findOneAnd/, async function (next) {
-  // @ts-ignore:
-  if (!this.r) {
-    // @ts-ignore:
-    this.r = await this.findOne();
-  }
-  next();
-});
-reviewSchema.post(/^findOneAnd/, async function () {
-  // await this.findOne(); does NOT work here, query has already executed
-  // @ts-ignore:
-  await this.constructor.calcAverageRatings(this.tour);
+reviewSchema.post(/^findOneAnd/, async (doc) => {
+  if (doc) await doc.constructor.calcAverageRatings(doc.tour);
 });
 
 export const Review = mongoose.model<reviewType>('Review', reviewSchema);

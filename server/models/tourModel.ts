@@ -178,6 +178,15 @@ toursSchema.path('priceDiscount').validate(function (value: number) {
   return true;
 });
 
+toursSchema.pre('save', async function (next) {
+  // Only run if password was actually modified
+  if (!this.isModified('rating')) return next();
+
+  console.log(this.ratingsAverage);
+
+  // Hash the password with the cost of 12
+});
+
 const Tour = mongoose.model<TourType>('Tour', toursSchema);
 
 export default Tour;

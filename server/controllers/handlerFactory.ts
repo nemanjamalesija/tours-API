@@ -3,6 +3,7 @@ import catchAsync from '../helpers/catchAsync.ts';
 import AppError from '../helpers/appError.ts';
 import { NextFunction, Request, Response } from 'express';
 import APIFeatures from '../helpers/APIFeatures.ts';
+import { Review } from '../models/reviewModel.ts';
 
 const deleteOne = <T extends Document>(Model: Model<T>) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -20,7 +21,7 @@ const deleteOne = <T extends Document>(Model: Model<T>) =>
     });
   });
 
-const updateOne = <T extends Document>(Model: Model<T>) =>
+const updateOne = <T extends Document>(Model: any) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
