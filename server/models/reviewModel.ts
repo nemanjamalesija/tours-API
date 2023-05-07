@@ -68,7 +68,6 @@ reviewSchema.statics.calcAverageRatings = async function (tourId) {
       },
     },
   ]);
-  // console.log(stats);
 
   if (stats.length > 0) {
     await Tour.findByIdAndUpdate(tourId, {
@@ -85,7 +84,7 @@ reviewSchema.statics.calcAverageRatings = async function (tourId) {
 
 reviewSchema.post('save', function () {
   // @ts-ignore: typescript doesn't recognise that this is current review now
-  this.constructor.calcAverageRatings(this.tour); // this points to review object with  post...
+  this.constructor.calcAverageRatings(this.tour);
 });
 
 reviewSchema.post(/^findOneAnd/, async (doc) => {
